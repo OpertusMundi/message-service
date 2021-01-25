@@ -6,11 +6,11 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
-import eu.opertusmundi.common.model.BaseResponse;
-import eu.opertusmundi.common.model.PageResultDto;
-import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.message.model.BaseResponse;
 import eu.opertusmundi.message.model.MessageCommandDto;
 import eu.opertusmundi.message.model.MessageDto;
+import eu.opertusmundi.message.model.PageResultDto;
+import eu.opertusmundi.message.model.RestResponse;
 import eu.opertusmundi.message.service.MessageService;
 
 @RestController

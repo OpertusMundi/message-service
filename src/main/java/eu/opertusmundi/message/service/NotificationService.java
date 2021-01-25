@@ -3,9 +3,9 @@ package eu.opertusmundi.message.service;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
-import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.message.model.NotificationCommandDto;
 import eu.opertusmundi.message.model.NotificationDto;
+import eu.opertusmundi.message.model.PageResultDto;
 
 public interface NotificationService {
 

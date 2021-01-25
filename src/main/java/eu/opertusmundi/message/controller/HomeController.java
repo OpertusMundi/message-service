@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.ModelAndView;
 
-import eu.opertusmundi.common.model.BasicMessageCode;
-import eu.opertusmundi.common.model.MessageCode;
-import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.message.model.BasicMessageCode;
+import eu.opertusmundi.message.model.MessageCode;
+import eu.opertusmundi.message.model.RestResponse;
 
 @Controller
 public class HomeController {

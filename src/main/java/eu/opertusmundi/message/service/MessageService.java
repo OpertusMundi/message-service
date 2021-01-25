@@ -3,9 +3,9 @@ package eu.opertusmundi.message.service;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
-import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.message.model.MessageCommandDto;
 import eu.opertusmundi.message.model.MessageDto;
+import eu.opertusmundi.message.model.PageResultDto;
 
 public interface MessageService {
 

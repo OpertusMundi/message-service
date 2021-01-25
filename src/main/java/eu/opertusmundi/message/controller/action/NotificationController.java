@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import eu.opertusmundi.common.model.BaseResponse;
-import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.message.model.BaseResponse;
 import eu.opertusmundi.message.model.NotificationCommandDto;
+import eu.opertusmundi.message.model.RestResponse;
 import eu.opertusmundi.message.model.openapi.schema.NotificationEndpointTypes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

@@ -1,8 +1,8 @@
 package eu.opertusmundi.message.model.openapi.schema;
 
-import eu.opertusmundi.common.model.PageResultDto;
-import eu.opertusmundi.common.model.RestResponse;
 import eu.opertusmundi.message.model.NotificationDto;
+import eu.opertusmundi.message.model.PageResultDto;
+import eu.opertusmundi.message.model.RestResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public class NotificationEndpointTypes {

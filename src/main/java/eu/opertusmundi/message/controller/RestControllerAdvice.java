@@ -15,12 +15,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import eu.opertusmundi.common.model.BaseResponse;
-import eu.opertusmundi.common.model.BasicMessageCode;
-import eu.opertusmundi.common.model.DebugRestResponse;
-import eu.opertusmundi.common.model.Message;
-import eu.opertusmundi.common.model.MessageCode;
-import eu.opertusmundi.common.model.RestResponse;
+import eu.opertusmundi.message.model.BaseResponse;
+import eu.opertusmundi.message.model.BasicMessageCode;
+import eu.opertusmundi.message.model.DebugRestResponse;
+import eu.opertusmundi.message.model.Message;
+import eu.opertusmundi.message.model.MessageCode;
+import eu.opertusmundi.message.model.RestResponse;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

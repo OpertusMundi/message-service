@@ -10,10 +10,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
-import eu.opertusmundi.common.model.PageResultDto;
 import eu.opertusmundi.message.domain.MessageEntity;
 import eu.opertusmundi.message.model.MessageCommandDto;
 import eu.opertusmundi.message.model.MessageDto;
+import eu.opertusmundi.message.model.PageResultDto;
 import eu.opertusmundi.message.repository.JpaMessageRepository;
 
 @Service
