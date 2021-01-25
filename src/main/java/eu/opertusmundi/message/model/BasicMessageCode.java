@@ -17,32 +17,6 @@ public enum BasicMessageCode implements MessageCode {
 
     // Validation error codes
     Validation,
-    ValidationNotUnique,
-    CannotDeleteSelf,
-    CannotRevokeLastAdmin,
-    ForeignKeyConstraint,
-    RecordNotFound,
-    ReferenceNotFound,
-    ValidationRequired,
-    ValidationValueMismatch,
-
-    // Account
-    AccountNotFound,
-    EmailNotFound,
-
-    // Activation Token
-    TokenNotFound,
-    TokenIsExpired,
-
-    // Mail
-    SendFailed,
-
-    // Logging
-    LogFailed,
-
-    // Generic errors
-    NotImplemented,
-    IOError,
     ;
 
     private final HttpStatus httpStatus;
