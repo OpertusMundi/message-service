@@ -1,7 +1,8 @@
 package eu.opertusmundi.message.security;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.security.Key;
+import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,6 +26,7 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 
 /**
@@ -65,11 +67,12 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
         if (!StringUtils.isBlank(header) && header.startsWith(TOKEN_PREFIX)) {
             try {
-                final byte[] signingKey = this.secret.getBytes(StandardCharsets.UTF_8);
+                final byte[] signingKey = Base64.getDecoder().decode(this.secret);
+                final Key    key        = Keys.hmacShaKeyFor(signingKey);
                 final String token      = header.replace("Bearer ", "");
 
                 final Jws<Claims> parsedToken = Jwts.parserBuilder()
-                    .setSigningKey(signingKey)
+                    .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token);
 
