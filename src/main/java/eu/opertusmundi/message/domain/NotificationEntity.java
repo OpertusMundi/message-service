@@ -13,6 +13,11 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.TypeDef;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+
 import eu.opertusmundi.message.model.NotificationDto;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -20,6 +25,10 @@ import lombok.Setter;
 
 @Entity(name = "Notification")
 @Table(name = "`notification`", schema = "messaging")
+@TypeDef(
+    typeClass      = JsonBinaryType.class,
+    defaultForType = JsonNode.class
+)
 public class NotificationEntity {
 
     @Id
@@ -60,8 +69,18 @@ public class NotificationEntity {
     @Column(name = "`read_at`")
     @Getter
     @Setter
-    ZonedDateTime readAt = ZonedDateTime.now();
+    ZonedDateTime readAt;
 
+    @Column(name = "`event_type`")
+    @Getter
+    @Setter
+    private String eventType;
+    
+    @Column(name = "`data`", columnDefinition = "jsonb")
+    @Getter
+    @Setter
+    private JsonNode data;
+    
     protected NotificationEntity() {
 
     }
@@ -74,6 +93,8 @@ public class NotificationEntity {
         final NotificationDto n = new NotificationDto();
 
         n.setCreatedAt(this.sendAt);
+        n.setData(this.data);
+        n.setEventType(this.eventType);
         n.setId(this.key);
         n.setRead(this.read);
         n.setReadAt(this.readAt);

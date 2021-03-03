@@ -48,6 +48,8 @@ public interface JpaNotificationRepository extends JpaRepository<NotificationEnt
     default NotificationDto send(NotificationCommandDto command) {
         final NotificationEntity notification = new NotificationEntity(command.getRecipient());
 
+        notification.setData(command.getData());
+        notification.setEventType(command.getEventType());
         notification.setText(command.getText());
 
         this.saveAndFlush(notification);
