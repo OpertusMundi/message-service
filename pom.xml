@@ -329,7 +329,7 @@
                             <arguments>
                                 <argument>-fsv</argument>
                                 <argument>${basedir}/target/${project.build.finalName}.jar</argument>
-                                <argument>${basedir}/target/docker/message-service.jar</argument>
+                                <argument>${basedir}/target/message-service.jar</argument>
                             </arguments>
                         </configuration>
                     </execution>
