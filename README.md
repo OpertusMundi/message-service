@@ -86,13 +86,16 @@ Rebuild, and deploy generated `target/opertus-mundi-message-service-1.0.0.war` o
 
 ### Run service using Docker
 
-```
-docker run  --name message-service -d \
-            -p 8110:8110 \
-            --volume "$(pwd)/.secrets/db-password:/etc/secrets/db-password" \
-            --volume "$(pwd)/.secrets/jwt-signing-key:/etc/secrets/jwt-signing-key" \
-            -e DB_HOST=db-host -e DB_USERNAME=username \
-            -e ZIPKIN_HOST=zipkin-host \
-            -e PROFILE=production \
-            local/opertus-mundi-message-service:1.0.0
-```
+Copy `docker-compose.yml.example` to `docker-compose.yml` and `.env.example` to `.env`. Edit and adjust to your needs. 
+
+You need to prepare some secrets under `./secrets` directory: `jwt-secret`, `database-password` and `flyway-secret.conf`.
+
+If needed, migrate database using Flyway:
+
+    docker-compose run --rm flyway migrate
+
+Run application:
+
+    docker-compose up -d app
+
+
