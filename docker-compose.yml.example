@@ -1,0 +1,63 @@
+# vim: syntax=yaml:
+
+version: '3.6'
+services:
+
+  'app':
+    image: 'opertusmundi/message-service:${VERSION}'
+    build:
+      context: .
+    volumes:
+    - type: 'bind'
+      source: ./secrets/
+      target: /secrets/
+      read_only: true
+    - type: 'bind'
+      source: ./logs
+      target: /app/logs
+    environment:
+      JAVA_OPTS: '-server -Xmx512m -Xms128m -Djava.security.egd=file:///dev/urandom'
+      DATABASE_HOST: ${DATABASE_HOST:-localhost}
+      DATABASE_PORT: ${DATABASE_PORT:-5432}
+      DATABASE_NAME: ${DATABASE_NAME:-opertusmundi}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD_FILE: /secrets/database-password
+      JWT_SECRET_FILE: /secrets/jwt-secret
+    ports:
+    - '8110:8110'
+    networks:
+    - 'opertusmundi_network'
+
+  # This is not a service, but an one-off command. Run like:
+  # docker-compose run --rm flyway migrate
+  'flyway':
+    image: 'flyway/flyway:7.7'
+    #command: ['info']
+    volumes:
+    - type: 'bind'
+      # A file (readable by gid 101) containing the sensitive part of Flyway configuration, e.g.:
+      #   flyway.user=someone
+      #   flyway.password=s3cret
+      source: ./secrets/flyway-secret.conf
+      target: /flyway/conf/secret.conf
+      read_only: true
+    - type: 'bind'
+      source: ./src/main/resources/db/migration
+      target: /flyway/sql
+      read_only: true
+    environment:
+      FLYWAY_CONFIG_FILES: /flyway/conf/secret.conf
+      FLYWAY_URL: |-
+        jdbc:postgresql://${DATABASE_HOST:-localhost}:${DATABASE_PORT:-5432}/${DATABASE_NAME}?
+      FLYWAY_SCHEMAS: ${FLYWAY_SCHEMAS}
+      FLYWAY_DEFAULT_SCHEMA: ${FLYWAY_DEFAULT_SCHEMA}
+      FLYWAY_BASELINE_VERSION: ${FLYWAY_BASELINE_VERSION}
+      FLYWAY_TABLE: ${FLYWAY_TABLE}
+      FLYWAY_BASELINE_ON_MIGRATE: 'true'
+    networks:
+    - 'opertusmundi_network'
+
+networks:
+  opertusmundi_network:
+    external: true
+

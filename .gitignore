@@ -2,10 +2,15 @@
 /logs
 /.secrets
 /secrets
+/config
+/config.*
 
 .settings
 .project
 .classpath
+
+/docker-compose.yml
+/.env
 
 # Generated from mvn ant:ant
 maven-build.properties
