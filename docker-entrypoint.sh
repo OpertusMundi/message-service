@@ -16,7 +16,7 @@ function _gen_configuration()
 default_java_opts="-server -Djava.security.egd=file:///dev/urandom -Xms128m"
 java_opts="${JAVA_OPTS:-${default_java_opts}}"
 
-runtime_profile=$(hostname | hexdump -e '"%02x"')
+runtime_profile=$(hostname | md5sum | head -c 32)
 _gen_configuration > ./config/application-${runtime_profile}.properties
 
 exec java ${java_opts} -cp "/app/classes:/app/dependency/*" eu.opertusmundi.message.Application \
