@@ -17,9 +17,7 @@ services:
       target: /app/logs
     environment:
       JAVA_OPTS: '-server -Xmx512m -Xms128m -Djava.security.egd=file:///dev/urandom'
-      DATABASE_HOST: ${DATABASE_HOST:-localhost}
-      DATABASE_PORT: ${DATABASE_PORT:-5432}
-      DATABASE_NAME: ${DATABASE_NAME:-opertusmundi}
+      DATABASE_URL: ${DATABASE_URL}
       DATABASE_USERNAME: ${DATABASE_USERNAME}
       DATABASE_PASSWORD_FILE: /secrets/database-password
       JWT_SECRET_FILE: /secrets/jwt-secret
@@ -49,8 +47,7 @@ services:
       read_only: true
     environment:
       FLYWAY_CONFIG_FILES: /flyway/conf/secret.conf
-      FLYWAY_URL: |-
-        jdbc:postgresql://${DATABASE_HOST:-localhost}:${DATABASE_PORT:-5432}/${DATABASE_NAME}?
+      FLYWAY_URL: ${DATABASE_URL}
       FLYWAY_SCHEMAS: ${FLYWAY_SCHEMAS}
       FLYWAY_DEFAULT_SCHEMA: ${FLYWAY_DEFAULT_SCHEMA}
       FLYWAY_BASELINE_VERSION: ${FLYWAY_BASELINE_VERSION}
