@@ -39,9 +39,21 @@ steps:
   - psql -U $${DATABASE_USER} -d $${DATABASE_NAME} -A -t -c '\d'
   - echo "CREATE SCHEMA \"messaging\"" | psql -U $${DATABASE_USER} -d $${DATABASE_NAME}
 
-- name: tests
+- name: resolve-deps
   #image: maven:3.6.3-openjdk-8
   image: opertusmundi/spring-boot-builder:1-2.3.4
+  when:
+    event:
+    - push
+  environment: {}
+  volumes:
+  - name: maven-repo
+    path: /root/.m2
+  commands:
+  - mvn -B dependency:resolve
+
+- name: generate-configuration-for-testing
+  image: busybox:1.32
   when:
     event:
     - push
@@ -51,16 +63,41 @@ steps:
     JWT_SECRET:
       from_secret: jwt_secret
   commands:
+  # Generate configuration for testing
   - mkdir ./config
+  - config_file=./config/application-testing.properties
   - >-
     (  echo "spring.datasource.url=jdbc:postgresql://$${DATABASE_HOST}:5432/$${DATABASE_NAME}";
        echo "spring.datasource.username=$${DATABASE_USER}";
        echo "spring.datasource.password=$${DATABASE_PASSWORD}";
        echo
        echo "opertus-mundi.security.jwt.secret=$${JWT_SECRET}";
-    ) > ./config/application-testing.properties
-  - mvn dependency:resolve -V -B
+    ) | tee $${config_file}
+
+- name: tests
+  #image: maven:3.6.3-openjdk-8
+  image: opertusmundi/spring-boot-builder:1-2.3.4
+  when:
+    event:
+    - push
+  volumes:
+  - name: maven-repo
+    path: /root/.m2
+  environment: {}
+  commands:
   - mvn test -B -DenableCiProfile
+
+- name: integration-tests
+  #image: maven:3.6.3-openjdk-8
+  image: opertusmundi/spring-boot-builder:1-2.3.4
+  when:
+    event:
+    - push
+  volumes:
+  - name: maven-repo
+    path: /root/.m2
+  environment: {}
+  commands:
   - mvn verify -B -DenableCiProfile
 
 - name: prepare-tags
@@ -85,7 +122,7 @@ steps:
       from_secret: docker_username
     password:
       from_secret: docker_password
-    repo: opertusmundi/message-service
+    repo: opertusmundi/messenger
     mirror: http://registry-mirror:5000
 
 - name: publish-image-2
@@ -99,7 +136,7 @@ steps:
       from_secret: registry_username
     password:
       from_secret: registry_password
-    repo: registry-dev-1-opertusmundi:30474/opertusmundi/message-service
+    repo: registry-dev-1-opertusmundi:30474/opertusmundi/messenger
     mirror: http://registry-mirror:5000
     registry: registry-dev-1-opertusmundi:30474
 
@@ -115,3 +152,10 @@ services:
     POSTGRES_PASSWORD:
       from_secret: database_postgres_password
 
+#
+# Volumes
+#
+
+volumes:
+- name: maven-repo
+  temp: {}

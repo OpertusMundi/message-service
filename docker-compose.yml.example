@@ -4,7 +4,7 @@ version: '3.6'
 services:
 
   'app':
-    image: 'opertusmundi/message-service:${VERSION}'
+    image: 'opertusmundi/messenger:${VERSION}'
     build:
       context: .
     volumes:
