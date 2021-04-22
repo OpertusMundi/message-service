@@ -13,8 +13,6 @@ RUN mvn -B dependency:copy-dependencies -DincludeScope=runtime \
 
 COPY src /app/src/
 COPY resources /app/resources/
-# note: access to .git directory is needed only by Git-Commit-Id-Plugin Maven plugin
-COPY .git /app/.git
 RUN mvn -B compile -DenableDockerBuildProfile
 
 

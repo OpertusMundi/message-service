@@ -31,6 +31,7 @@
         <springdoc.version>1.2.34</springdoc.version>
         <git-commit-id-plugin.version>4.0.1</git-commit-id-plugin.version>
         <postgresql.version>42.2.19</postgresql.version>
+        <git-commit-id.skip>false</git-commit-id.skip>
     </properties>
 
     <profiles>
@@ -41,6 +42,9 @@
                     <name>enableCiProfile</name>
                 </property>
             </activation>
+            <properties>
+                <git-commit-id.skip>true</git-commit-id.skip>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
@@ -74,6 +78,9 @@
                     <name>enableDockerBuildProfile</name>
                 </property>
             </activation>
+            <properties>
+                <git-commit-id.skip>true</git-commit-id.skip>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
@@ -302,6 +309,7 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <skip>${git-commit-id.skip}</skip>
                     <generateGitPropertiesFile>true</generateGitPropertiesFile>
                     <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
                     <includeOnlyProperties>
