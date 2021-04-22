@@ -63,8 +63,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 this.openApiSpec,
                 this.openApiSpec + "/**"
              ).permitAll()
-            // Restrict access to actuator to administrators only
-            .requestMatchers(EndpointRequest.toAnyEndpoint()).hasRole("ADMIN")
+            // Permit access to actuator (consider restricting accessible details)
+            .requestMatchers(EndpointRequest.toAnyEndpoint()).permitAll()
             // Secure any other path
             .anyRequest().authenticated();
 
