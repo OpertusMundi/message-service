@@ -15,6 +15,11 @@ services:
     - type: 'bind'
       source: ./logs
       target: /app/logs
+    # note: override logging configuration
+    #- type: 'bind'
+    #  source: ./config/log4j2-syslog.xml
+    #  target: /app/config/log4j2.xml
+    #  read_only: true
     environment:
       JAVA_OPTS: '-server -Xmx512m -Xms128m -Djava.security.egd=file:///dev/urandom'
       DATABASE_URL: ${DATABASE_URL}

@@ -23,13 +23,18 @@ function _gen_configuration()
 	EOD
 }
 
-runtime_profile=$(hostname | md5sum | head -c 32)
+runtime_profile=$(hostname | md5sum | head -c10)
 _gen_configuration > ./config/application-${runtime_profile}.properties
+
+logging_config="classpath:config/log4j2.xml"
+if [[ -f "./config/log4j2.xml" ]]; then
+    logging_config="file:config/log4j2.xml"
+fi
 
 # Run
 
 main_class=eu.opertusmundi.message.Application
 default_java_opts="-server -Djava.security.egd=file:///dev/urandom -Xms128m"
 exec java ${JAVA_OPTS:-${default_java_opts}} -cp "/app/classes:/app/dependency/*" ${main_class} \
-    --spring.profiles.active=production,${runtime_profile}
+    --spring.profiles.active=production,${runtime_profile} --logging.config=${logging_config}
 
