@@ -89,17 +89,17 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
                     return new UsernamePasswordAuthenticationToken(username, null, authorities);
                 }
             } catch (final ExpiredJwtException exception) {
-                logger.warn("Request to parse expired JWT : {} failed : {}", header, exception.getMessage());
+                logger.warn("JWT token is expired. [header={}, message={}]", header, exception.getMessage());
             } catch (final UnsupportedJwtException exception) {
-                logger.warn("Request to parse unsupported JWT : {} failed : {}", header, exception.getMessage());
+                logger.warn("JWT token is not supported. [header={}, message={}]", header, exception.getMessage());
             } catch (final MalformedJwtException exception) {
-                logger.warn("Request to parse invalid JWT : {} failed : {}", header, exception.getMessage());
+                logger.warn("JWT token is malformed. [header={}, message={}]", header, exception.getMessage());
             } catch (final SignatureException exception) {
-                logger.warn("Request to parse JWT with invalid signature : {} failed : {}", header, exception.getMessage());
+                logger.warn("JWT signature is invalid. [header={}, message={}]", header, exception.getMessage());
             } catch (final IllegalArgumentException exception) {
-                logger.warn("Request to parse empty or null JWT : {} failed : {}", header, exception.getMessage());
+                logger.warn("JWT token is null or empty. [header={}, message={}]", header, exception.getMessage());
             } catch (final Exception ex) {
-                logger.error("Failed to verify JWT token : {} failed : {}", header, ex.getMessage());
+                logger.error("Failed to verify JWT token. [header={}, message={}]", header, ex.getMessage());
             }
         }
 
