@@ -1,6 +1,7 @@
 package eu.opertusmundi.message.controller.action;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +21,8 @@ public class MessageControllerImpl implements MessageController {
     private MessageService messageService;
 
     @Override
-    public RestResponse<?> findMessages(
-        Integer pageIndex, Integer pageSize, UUID userKey, ZonedDateTime dateFrom, ZonedDateTime dateTo, Boolean read
+    public RestResponse<?> getHelpdeskInbox(
+        Integer pageIndex, Integer pageSize, ZonedDateTime dateFrom, ZonedDateTime dateTo, Boolean read
     ) {
         if (pageIndex == null) {
             pageIndex = 0;
@@ -30,7 +31,23 @@ public class MessageControllerImpl implements MessageController {
             pageSize = 10;
         }
 
-        final PageResultDto<MessageDto> result = this.messageService.find(pageIndex, pageSize, userKey, dateFrom, dateTo, read);
+        final PageResultDto<MessageDto> result = this.messageService.findHelpdeskUnassignedMessages(pageIndex, pageSize, dateFrom, dateTo, read);
+
+        return RestResponse.result(result);
+    }
+
+    @Override
+    public RestResponse<?> findMessages(
+        UUID userKey, Integer pageIndex, Integer pageSize, ZonedDateTime dateFrom, ZonedDateTime dateTo, Boolean read
+    ) {
+        if (pageIndex == null) {
+            pageIndex = 0;
+        }
+        if (pageSize == null) {
+            pageSize = 10;
+        }
+
+        final PageResultDto<MessageDto> result = this.messageService.findUserMessages(pageIndex, pageSize, userKey, dateFrom, dateTo, read);
 
         return RestResponse.result(result);
     }
@@ -47,6 +64,20 @@ public class MessageControllerImpl implements MessageController {
         final MessageDto message = this.messageService.read(owner, key);
 
         return RestResponse.result(message);
+    }
+
+    @Override
+    public BaseResponse assignMessage(UUID messageKey, UUID recipientKey) {
+        final MessageDto message = this.messageService.assignMessage(messageKey, recipientKey);
+
+        return RestResponse.result(message);
+    }
+
+    @Override
+    public BaseResponse getMessageThread(UUID threadKey, UUID ownerKey) {
+        final List<MessageDto> messages = this.messageService.getMessageThread(threadKey, ownerKey);
+
+        return RestResponse.result(messages);
     }
 
 }

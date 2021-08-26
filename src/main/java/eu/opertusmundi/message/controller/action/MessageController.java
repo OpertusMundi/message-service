@@ -18,6 +18,7 @@ import eu.opertusmundi.message.model.MessageCommandDto;
 import eu.opertusmundi.message.model.RestResponse;
 import eu.opertusmundi.message.model.openapi.schema.MessageEndpointTypes;
 import eu.opertusmundi.message.model.openapi.schema.MessageEndpointTypes.MessageResponseDto;
+import eu.opertusmundi.message.model.openapi.schema.MessageEndpointTypes.MessageThreadResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -35,6 +36,66 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 )
 @RequestMapping(path = "/v1/messages", produces = MediaType.APPLICATION_JSON_VALUE)
 public interface MessageController {
+
+    /**
+     * Get Helpdesk unassigned messages
+     *
+     * @param pageIndex
+     * @param pageSize
+     * @param dateFrom
+     * @param dateTo
+     * @param read
+     *
+     * @return An instance of {@link MessageEndpointTypes.MessageListResponseDto}
+     */
+    @Operation(
+        summary     = "Get Helpdesk Inbox",
+        tags        = { "Message" }
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = MessageEndpointTypes.MessageListResponseDto.class)
+        )
+    )
+    @GetMapping(value = "/helpdesk")
+    @Secured({"ROLE_USER"})
+    RestResponse<?> getHelpdeskInbox(
+        @Parameter(
+            in          = ParameterIn.QUERY,
+            required    = false,
+            description = "Page index",
+            schema      = @Schema(type = "integer", defaultValue = "0")
+        )
+        @RequestParam(name = "page", required = false) Integer pageIndex,
+        @Parameter(
+            in          = ParameterIn.QUERY,
+            required    = false,
+            description = "Page size",
+            schema      = @Schema(type = "integer", defaultValue = "10")
+        )
+        @RequestParam(name = "size", required = false) Integer pageSize,
+        @Parameter(
+            in          = ParameterIn.QUERY,
+            required    = false,
+            description = "Filter messages after date"
+        )
+        @RequestParam(name = "date-from", required = false) ZonedDateTime dateFrom,
+        @Parameter(
+            in          = ParameterIn.QUERY,
+            required    = false,
+            description = "Filter messages before date"
+        )
+        @RequestParam(name = "date-to", required = false) ZonedDateTime dateTo,
+        @Parameter(
+            in          = ParameterIn.QUERY,
+            required    = false,
+            description = "Filter read messages"
+        )
+        @RequestParam(name = "read", required = false) Boolean read
+    );
 
     /**
      * Find messages
@@ -60,9 +121,14 @@ public interface MessageController {
             schema = @Schema(implementation = MessageEndpointTypes.MessageListResponseDto.class)
         )
     )
-    @GetMapping(value = "")
+    @GetMapping(value = "/user/{userKey}")
     @Secured({"ROLE_USER"})
     RestResponse<?> findMessages(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            description = "Filter user by key"
+        )
+        @PathVariable(name = "userKey") UUID userKey,
         @Parameter(
             in          = ParameterIn.QUERY,
             required    = false,
@@ -77,12 +143,6 @@ public interface MessageController {
             schema      = @Schema(type = "integer", defaultValue = "10")
         )
         @RequestParam(name = "size", required = false) Integer pageSize,
-        @Parameter(
-            in          = ParameterIn.QUERY,
-            required    = false,
-            description = "Filter user by key"
-        )
-        @RequestParam(name = "user", required = true) UUID userKey,
         @Parameter(
             in          = ParameterIn.QUERY,
             required    = false,
@@ -162,6 +222,75 @@ public interface MessageController {
             description = "Message unique key"
         )
         @PathVariable(name = "key", required = true) UUID key
+    );
+
+    /**
+     * Assign message to Helpdesk user
+     *
+     * @param key The message to mark as read
+     *
+     * @return An instance of {@link BaseResponse}
+     */
+    @Operation(
+        summary     = "Assign message",
+        description = "Assigns a message to Helpdesk user",
+        tags        = { "Message" }
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = BaseResponse.class))
+    )
+    @PutMapping(value = "/{messageKey}/recipient/{recipientKey}")
+    @Secured({"ROLE_USER"})
+    BaseResponse assignMessage(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Message unique key"
+        )
+        @PathVariable(name = "messageKey", required = true) UUID messageKey,
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Recipient unique key"
+        )
+        @PathVariable(name = "recipientKey", required = true) UUID recipientKey
+    );
+
+    /**
+     * Get a message thread
+     *
+     * @param userKey The owner of the message
+     * @param messageKey The key of any message from the thread
+     *
+     * @return An instance of {@link BaseResponse}
+     */
+    @Operation(
+        summary     = "Get message thread",
+        description = "Get all messages of the thread that the specified message key belongs to",
+        tags        = { "Message" }
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = MessageThreadResponseDto.class))
+    )
+    @GetMapping(value = "/thread/{threadKey}/sender/{ownerKey}")
+    @Secured({"ROLE_USER"})
+    BaseResponse getMessageThread(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Message thread unique key"
+        )
+        @PathVariable(name = "threadKey") UUID threadKey,
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Message owner's unique key"
+        )
+        @PathVariable(name = "ownerKey") UUID ownerKey
     );
 
 }

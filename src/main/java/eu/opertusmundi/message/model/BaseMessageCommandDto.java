@@ -12,7 +12,7 @@ import lombok.Setter;
 public class BaseMessageCommandDto {
 
     @Schema(description = "Recipient unique id", required = true)
-    @NotNull
+    @NotNull(groups = {MessageValidationUserGroup.class})
     @Getter
     @Setter
     private UUID recipient;

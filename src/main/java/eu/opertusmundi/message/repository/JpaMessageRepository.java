@@ -25,6 +25,12 @@ public interface JpaMessageRepository extends JpaRepository<MessageEntity, Integ
 
     Optional<MessageEntity> findOneByOwnerAndKey(UUID owner, UUID key);
 
+    @Query("SELECT m FROM Message m WHERE m.key = :key and m.recipient is null order by m.sendAt desc")
+    List<MessageEntity> findAllUnassignedByKey(UUID key);
+
+    @Query("SELECT m FROM Message m WHERE m.owner = :owner and m.thread = :thread order by m.sendAt desc")
+    List<MessageEntity> findAllByOwnerAndThread(UUID owner, UUID thread);
+
     @Query("SELECT m FROM Message m WHERE m.owner = :userKey")
     List<MessageEntity> findUserMessages(@Param("userKey") UUID userKey, Pageable pageable);
 
@@ -35,11 +41,23 @@ public interface JpaMessageRepository extends JpaRepository<MessageEntity, Integ
     List<MessageEntity> findThreadMessages(@Param("owner") UUID owner, @Param("thread") UUID thread);
 
     @Query("SELECT m FROM Message m WHERE " +
+           "   (m.recipient is null) AND " +
+           "   (CAST(:dateFrom AS date) IS NULL OR m.sendAt >= :dateFrom) AND " +
+           "   (CAST(:dateTo AS date) IS NULL OR m.sendAt <= :dateTo) AND " +
+           "   (:read IS NULL OR m.read = :read)")
+    Page<MessageEntity> findHelpdeskUnassignedMessages(
+         @Param("dateFrom") ZonedDateTime dateFrom,
+         @Param("dateTo") ZonedDateTime dateTo,
+         @Param("read") Boolean read,
+         Pageable pageable
+    );
+
+    @Query("SELECT m FROM Message m WHERE " +
            "   (m.owner = :userKey) AND " +
            "   (CAST(:dateFrom AS date) IS NULL OR m.sendAt >= :dateFrom) AND " +
            "   (CAST(:dateTo AS date) IS NULL OR m.sendAt <= :dateTo) AND " +
            "   (:read IS NULL OR m.read = :read)")
-     Page<MessageEntity> findAll(
+     Page<MessageEntity> findUserMessages(
          @Param("userKey") UUID userKey,
          @Param("dateFrom") ZonedDateTime dateFrom,
          @Param("dateTo") ZonedDateTime dateTo,
@@ -53,9 +71,22 @@ public interface JpaMessageRepository extends JpaRepository<MessageEntity, Integ
         final UUID key = UUID.randomUUID();
 
         // Resolve thread
-        final MessageEntity replyMessage = this.findOneByOwnerAndKey(command.getSender(), command.getMessage()).orElse(null);
-        final UUID          thread       = replyMessage == null ? key : replyMessage.getThread();
+        final List<MessageEntity> threadMessages = this.findAllByOwnerAndThread(command.getSender(), command.getThread());
+        final MessageEntity       lastMessage    = threadMessages.isEmpty() ? null : threadMessages.get(0);
+        final UUID                thread         = lastMessage == null ? key : lastMessage.getThread();
 
+        // Resolve recipient
+        if (command.getRecipient() == null && lastMessage != null) {
+            // By default reply to the sender of the most recent message in the thread
+            UUID recipientKey = threadMessages.get(0).getSender();
+
+            if (recipientKey.equals(command.getSender())) {
+                // If the last sender is the same user, send the message to the
+                // recipient of the last message in the thread
+                recipientKey = threadMessages.get(0).getRecipient();
+            }
+            command.setRecipient(recipientKey);
+        }
         // Create message for sender
         final MessageEntity senderMessage = new MessageEntity(command.getSender(), key, thread);
 
@@ -66,13 +97,15 @@ public interface JpaMessageRepository extends JpaRepository<MessageEntity, Integ
         this.saveAndFlush(senderMessage);
 
         // Create message for recipient
-        final MessageEntity recipientMessage = new MessageEntity(command.getRecipient(), key, thread);
+        if (command.getRecipient() != null) {
+            final MessageEntity recipientMessage = new MessageEntity(command.getRecipient(), key, thread);
 
-        recipientMessage.setRecipient(command.getRecipient());
-        recipientMessage.setSender(command.getSender());
-        recipientMessage.setText(command.getText());
+            recipientMessage.setRecipient(command.getRecipient());
+            recipientMessage.setSender(command.getSender());
+            recipientMessage.setText(command.getText());
 
-        this.saveAndFlush(recipientMessage);
+            this.saveAndFlush(recipientMessage);
+        }
 
         return senderMessage.toDto();
     }
@@ -93,6 +126,41 @@ public interface JpaMessageRepository extends JpaRepository<MessageEntity, Integ
         }
 
         return message.toDto();
+    }
+
+    @Transactional(readOnly = false)
+    default MessageDto assignMessage(UUID messageKey, UUID recipientKey) throws EntityNotFoundException {
+        // Find message by key
+        final List<MessageEntity> unassignedMessages = this.findAllUnassignedByKey(messageKey);
+
+        if (unassignedMessages.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+
+        final MessageEntity lastMessage = unassignedMessages.get(0);
+
+        // Update all messages in the thread (user may have send multiple
+        // messages)
+        final List<MessageEntity> threadMessages = this.findThreadMessages(lastMessage.getOwner(), lastMessage.getThread());
+
+        for (final MessageEntity m : threadMessages) {
+            if (m.getRecipient() == null) {
+                m.setRecipient(recipientKey);
+
+                this.saveAndFlush(m);
+
+                // Create recipient message
+                final MessageEntity recipientMessage = new MessageEntity(recipientKey, m.getKey(), m.getThread());
+
+                recipientMessage.setRecipient(recipientKey);
+                recipientMessage.setSender(m.getSender());
+                recipientMessage.setText(m.getText());
+
+                this.saveAndFlush(recipientMessage);
+            }
+        }
+
+        return lastMessage.toDto();
     }
 
 }

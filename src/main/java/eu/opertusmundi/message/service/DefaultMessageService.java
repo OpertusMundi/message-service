@@ -1,7 +1,9 @@
 package eu.opertusmundi.message.service;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,12 +25,25 @@ public class DefaultMessageService implements MessageService {
     private JpaMessageRepository messageRepository;
 
     @Override
-    public PageResultDto<MessageDto> find(
+    public PageResultDto<MessageDto> findHelpdeskUnassignedMessages(
+        Integer pageIndex, Integer pageSize, ZonedDateTime dateFrom, ZonedDateTime dateTo, Boolean read
+    ) {
+        final PageRequest pageRequest = PageRequest.of(pageIndex, pageSize, Sort.by(Direction.DESC, "sendAt"));
+
+        final Page<MessageEntity> page = this.messageRepository.findHelpdeskUnassignedMessages(dateFrom, dateTo, read, pageRequest);
+
+        final PageResultDto<MessageDto> result = PageResultDto.from(page, MessageEntity::toDto);
+
+        return result;
+    }
+
+    @Override
+    public PageResultDto<MessageDto> findUserMessages(
         Integer pageIndex, Integer pageSize, UUID userKey, ZonedDateTime dateFrom, ZonedDateTime dateTo, Boolean read
     ) {
         final PageRequest pageRequest = PageRequest.of(pageIndex, pageSize, Sort.by(Direction.DESC, "sendAt"));
 
-        final Page<MessageEntity> page = this.messageRepository.findAll(userKey, dateFrom, dateTo, read, pageRequest);
+        final Page<MessageEntity> page = this.messageRepository.findUserMessages(userKey, dateFrom, dateTo, read, pageRequest);
 
         final PageResultDto<MessageDto> result = PageResultDto.from(page, MessageEntity::toDto);
 
@@ -45,4 +60,15 @@ public class DefaultMessageService implements MessageService {
         return this.messageRepository.read(owner, key);
     }
 
+    @Override
+    public MessageDto assignMessage(UUID messageKey, UUID recipientKey) {
+        return this.messageRepository.assignMessage(messageKey, recipientKey);
+    }
+
+    @Override
+    public List<MessageDto> getMessageThread(UUID threadKey, UUID ownerKey) {
+        return this.messageRepository.findAllByOwnerAndThread(ownerKey, threadKey).stream()
+            .map(MessageEntity::toDto)
+            .collect(Collectors.toList());
+    }
 }

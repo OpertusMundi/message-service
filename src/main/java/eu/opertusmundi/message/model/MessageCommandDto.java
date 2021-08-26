@@ -19,9 +19,9 @@ public class MessageCommandDto extends BaseMessageCommandDto {
     @Setter
     private UUID sender;
 
-    @Schema(description = "Reply to the message with the specified id", required = false)
+    @Schema(description = "Reply to the specified message thread", required = false)
     @Getter
     @Setter
-    private UUID message;
+    private UUID thread;
 
 }

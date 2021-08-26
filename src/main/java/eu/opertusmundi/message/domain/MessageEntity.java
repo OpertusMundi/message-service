@@ -53,8 +53,7 @@ public class MessageEntity {
     @Setter
     private UUID sender;
 
-    @NotNull
-    @Column(name = "recipient", updatable = false, columnDefinition = "uuid")
+    @Column(name = "recipient", columnDefinition = "uuid")
     @Getter
     @Setter
     private UUID recipient;
@@ -96,6 +95,7 @@ public class MessageEntity {
 
         n.setCreatedAt(this.sendAt);
         n.setId(this.key);
+        n.setSender(this.sender);
         n.setRead(this.read);
         n.setReadAt(this.readAt);
         n.setRecipient(this.recipient);

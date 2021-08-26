@@ -23,6 +23,11 @@ public class MessageDto extends BaseMessageDto {
     @Setter
     private UUID thread;
 
+    @Schema(description = "Message sender")
+    @Getter
+    @Setter
+    private UUID sender;
+
     @Schema(description = "Message recipient")
     @Getter
     @Setter
