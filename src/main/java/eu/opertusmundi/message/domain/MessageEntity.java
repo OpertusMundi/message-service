@@ -80,6 +80,11 @@ public class MessageEntity {
     @Setter
     ZonedDateTime readAt;
 
+    @Column(name = "`reply`", columnDefinition = "uuid")
+    @Getter
+    @Setter
+    UUID reply;
+
     protected MessageEntity() {
 
     }
@@ -99,6 +104,7 @@ public class MessageEntity {
         n.setRead(this.read);
         n.setReadAt(this.readAt);
         n.setRecipient(this.recipient);
+        n.setReply(this.reply);
         n.setText(this.text);
         n.setThread(this.thread);
 

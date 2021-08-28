@@ -33,4 +33,9 @@ public class MessageDto extends BaseMessageDto {
     @Setter
     private UUID recipient;
 
+    @Schema(description = "Reply message key")
+    @Getter
+    @Setter
+    private UUID reply;
+
 }
