@@ -24,4 +24,9 @@ public class MessageEndpointTypes {
 
     }
 
+    @Schema(description = "Message count response")
+    public static class CountResponseDto extends RestResponse<Long> {
+
+    }
+
 }

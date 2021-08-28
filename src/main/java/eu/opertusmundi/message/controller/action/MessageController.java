@@ -98,6 +98,27 @@ public interface MessageController {
     );
 
     /**
+     * Count Helpdesk unassigned messages
+     *
+     * @return An instance of {@link MessageEndpointTypes.CountResponseDto}
+     */
+    @Operation(
+        summary     = "Get Helpdesk Inbox count",
+        tags        = { "Message" }
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = MessageEndpointTypes.CountResponseDto.class)
+        )
+    )
+    @GetMapping(value = "/helpdesk/count")
+    @Secured({"ROLE_USER"})
+    RestResponse<?> countUnassignedMessages();
+
+    /**
      * Find messages
      *
      * @param pageIndex
@@ -123,7 +144,7 @@ public interface MessageController {
     )
     @GetMapping(value = "/user/{userKey}")
     @Secured({"ROLE_USER"})
-    RestResponse<?> findMessages(
+    RestResponse<?> getUserInbox(
         @Parameter(
             in          = ParameterIn.PATH,
             description = "Filter user by key"
@@ -161,6 +182,33 @@ public interface MessageController {
             description = "Filter read messages"
         )
         @RequestParam(name = "read", required = false) Boolean read
+    );
+
+    /**
+     * Count user new messages
+     *
+     * @return An instance of {@link MessageEndpointTypes.CountResponseDto}
+     */
+    @Operation(
+        summary     = "Find messages",
+        tags        = { "Message" }
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(
+            mediaType = MediaType.APPLICATION_JSON_VALUE,
+            schema = @Schema(implementation = MessageEndpointTypes.CountResponseDto.class)
+        )
+    )
+    @GetMapping(value = "/user/{userKey}/count")
+    @Secured({"ROLE_USER"})
+    RestResponse<?> countUserNewMessages(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            description = "Filter user by key"
+        )
+        @PathVariable(name = "userKey") UUID userKey
     );
 
     /**

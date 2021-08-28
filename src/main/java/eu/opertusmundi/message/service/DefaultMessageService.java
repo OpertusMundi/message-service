@@ -38,6 +38,11 @@ public class DefaultMessageService implements MessageService {
     }
 
     @Override
+    public Long countUnassignedMessages() {
+        return this.messageRepository.countUnassignedMessages();
+    }
+
+    @Override
     public PageResultDto<MessageDto> findUserMessages(
         Integer pageIndex, Integer pageSize, UUID userKey, ZonedDateTime dateFrom, ZonedDateTime dateTo, Boolean read
     ) {
@@ -48,6 +53,11 @@ public class DefaultMessageService implements MessageService {
         final PageResultDto<MessageDto> result = PageResultDto.from(page, MessageEntity::toDto);
 
         return result;
+    }
+
+    @Override
+    public Long countUserNewMessages(UUID userKey) {
+        return this.messageRepository.countUserNewMessages(userKey);
     }
 
     @Override

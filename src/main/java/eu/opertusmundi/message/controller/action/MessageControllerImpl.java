@@ -37,7 +37,14 @@ public class MessageControllerImpl implements MessageController {
     }
 
     @Override
-    public RestResponse<?> findMessages(
+    public RestResponse<?> countUnassignedMessages() {
+        final Long result = messageService.countUnassignedMessages();
+
+        return RestResponse.result(result);
+    }
+
+    @Override
+    public RestResponse<?> getUserInbox(
         UUID userKey, Integer pageIndex, Integer pageSize, ZonedDateTime dateFrom, ZonedDateTime dateTo, Boolean read
     ) {
         if (pageIndex == null) {
@@ -48,6 +55,13 @@ public class MessageControllerImpl implements MessageController {
         }
 
         final PageResultDto<MessageDto> result = this.messageService.findUserMessages(pageIndex, pageSize, userKey, dateFrom, dateTo, read);
+
+        return RestResponse.result(result);
+    }
+
+    @Override
+    public RestResponse<?> countUserNewMessages(UUID userKey) {
+        final Long result = messageService.countUserNewMessages(userKey);
 
         return RestResponse.result(result);
     }

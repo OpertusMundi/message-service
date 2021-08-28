@@ -23,12 +23,18 @@ import eu.opertusmundi.message.model.MessageDto;
 @Transactional(readOnly = true)
 public interface JpaMessageRepository extends JpaRepository<MessageEntity, Integer> {
 
+    @Query("SELECT count(m) FROM Message m WHERE m.recipient is null")
+    long countUnassignedMessages();
+
+    @Query("SELECT count(m) FROM Message m WHERE m.owner = :owner and m.read = false")
+    long countUserNewMessages(@Param("owner") UUID owner);
+
     Optional<MessageEntity> findOneByOwnerAndKey(UUID owner, UUID key);
 
     @Query("SELECT m FROM Message m WHERE m.key = :key and m.recipient is null order by m.sendAt desc")
     List<MessageEntity> findAllUnassignedByKey(UUID key);
 
-    @Query("SELECT m FROM Message m WHERE m.owner = :owner and m.thread = :thread order by m.sendAt desc")
+    @Query("SELECT m FROM Message m WHERE m.owner = :owner and m.thread = :thread order by m.sendAt asc")
     List<MessageEntity> findAllByOwnerAndThread(UUID owner, UUID thread);
 
     @Query("SELECT m FROM Message m WHERE m.owner = :userKey")
@@ -54,6 +60,7 @@ public interface JpaMessageRepository extends JpaRepository<MessageEntity, Integ
 
     @Query("SELECT m FROM Message m WHERE " +
            "   (m.owner = :userKey) AND " +
+           "   (m.recipient = :userKey) AND " +
            "   (CAST(:dateFrom AS date) IS NULL OR m.sendAt >= :dateFrom) AND " +
            "   (CAST(:dateTo AS date) IS NULL OR m.sendAt <= :dateTo) AND " +
            "   (:read IS NULL OR m.read = :read)")
@@ -72,18 +79,18 @@ public interface JpaMessageRepository extends JpaRepository<MessageEntity, Integ
 
         // Resolve thread
         final List<MessageEntity> threadMessages = this.findAllByOwnerAndThread(command.getSender(), command.getThread());
-        final MessageEntity       lastMessage    = threadMessages.isEmpty() ? null : threadMessages.get(0);
+        final MessageEntity       lastMessage    = threadMessages.isEmpty() ? null : threadMessages.get(threadMessages.size() - 1);
         final UUID                thread         = lastMessage == null ? key : lastMessage.getThread();
 
         // Resolve recipient
         if (command.getRecipient() == null && lastMessage != null) {
             // By default reply to the sender of the most recent message in the thread
-            UUID recipientKey = threadMessages.get(0).getSender();
+            UUID recipientKey = lastMessage.getSender();
 
             if (recipientKey.equals(command.getSender())) {
                 // If the last sender is the same user, send the message to the
                 // recipient of the last message in the thread
-                recipientKey = threadMessages.get(0).getRecipient();
+                recipientKey = lastMessage.getRecipient();
             }
             command.setRecipient(recipientKey);
         }
@@ -93,6 +100,9 @@ public interface JpaMessageRepository extends JpaRepository<MessageEntity, Integ
         senderMessage.setRecipient(command.getRecipient());
         senderMessage.setSender(command.getSender());
         senderMessage.setText(command.getText());
+        // Always marked as read for sender
+        senderMessage.setRead(true);
+        senderMessage.setReadAt(senderMessage.getSendAt());
 
         this.saveAndFlush(senderMessage);
 
@@ -105,6 +115,12 @@ public interface JpaMessageRepository extends JpaRepository<MessageEntity, Integ
             recipientMessage.setText(command.getText());
 
             this.saveAndFlush(recipientMessage);
+
+            // Update reply
+            if (lastMessage != null) {
+                lastMessage.setReply(recipientMessage.getKey());
+                this.saveAndFlush(lastMessage);
+            }
         }
 
         return senderMessage.toDto();

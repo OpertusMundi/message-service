@@ -27,6 +27,13 @@ public interface MessageService {
     );
 
     /**
+     * Count Helpdesk unassigned messages
+     *
+     * @return The number of messages
+     */
+    Long countUnassignedMessages();
+
+    /**
      * Find messages
      *
      * @param pageIndex
@@ -41,6 +48,15 @@ public interface MessageService {
     PageResultDto<MessageDto> findUserMessages(
         Integer pageIndex, Integer pageSize, UUID userKey, ZonedDateTime dateFrom, ZonedDateTime dateTo, Boolean read
     );
+
+    /**
+     * Count user new messages
+     *
+     * @param userKey
+     *
+     * @return The number of new (unread) messages
+     */
+    Long countUserNewMessages(UUID userKey);
 
     /**
      * Send a new message
