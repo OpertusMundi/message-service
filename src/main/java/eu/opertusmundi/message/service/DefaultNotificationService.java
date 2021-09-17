@@ -11,6 +11,8 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 import eu.opertusmundi.message.domain.NotificationEntity;
+import eu.opertusmundi.message.model.EnumNotificationSortField;
+import eu.opertusmundi.message.model.EnumSortingOrder;
 import eu.opertusmundi.message.model.NotificationCommandDto;
 import eu.opertusmundi.message.model.NotificationDto;
 import eu.opertusmundi.message.model.PageResultDto;
@@ -24,9 +26,12 @@ public class DefaultNotificationService implements NotificationService {
 
     @Override
     public PageResultDto<NotificationDto> find(
-        Integer pageIndex, Integer pageSize, UUID userKey, ZonedDateTime dateFrom, ZonedDateTime dateTo, Boolean read
+        Integer pageIndex, Integer pageSize,
+        UUID userKey, ZonedDateTime dateFrom, ZonedDateTime dateTo, Boolean read,
+        EnumNotificationSortField orderBy, EnumSortingOrder order
     ) {
-        final PageRequest pageRequest = PageRequest.of(pageIndex, pageSize, Sort.by(Direction.ASC, "sendAt"));
+        final Direction   direction   = order == EnumSortingOrder.DESC ? Direction.DESC : Direction.ASC;
+        final PageRequest pageRequest = PageRequest.of(pageIndex, pageSize, Sort.by(direction, orderBy.getValue()));
 
         final Page<NotificationEntity> page = this.notificationRepository.findAll(userKey, dateFrom, dateTo, read, pageRequest);
 

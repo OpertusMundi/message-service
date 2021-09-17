@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.opertusmundi.message.model.BaseResponse;
+import eu.opertusmundi.message.model.EnumNotificationSortField;
+import eu.opertusmundi.message.model.EnumSortingOrder;
 import eu.opertusmundi.message.model.NotificationCommandDto;
 import eu.opertusmundi.message.model.NotificationDto;
 import eu.opertusmundi.message.model.PageResultDto;
@@ -21,7 +23,8 @@ public class NotificationControllerImpl implements NotificationController {
 
     @Override
     public RestResponse<?> findNotifications(
-        Integer pageIndex, Integer pageSize, UUID userKey, ZonedDateTime dateFrom, ZonedDateTime dateTo, Boolean read
+        Integer pageIndex, Integer pageSize, UUID userKey, ZonedDateTime dateFrom, ZonedDateTime dateTo, Boolean read,
+        EnumNotificationSortField orderBy, EnumSortingOrder order
     ) {
         if (pageIndex == null) {
             pageIndex = 0;
@@ -30,7 +33,9 @@ public class NotificationControllerImpl implements NotificationController {
             pageSize = 10;
         }
 
-        final PageResultDto<NotificationDto> result = this.notificationService.find(pageIndex, pageSize, userKey, dateFrom, dateTo, read);
+        final PageResultDto<NotificationDto> result = this.notificationService.find(
+            pageIndex, pageSize, userKey, dateFrom, dateTo, read, orderBy, order
+        );
 
         return RestResponse.result(result);
     }
