@@ -54,4 +54,11 @@ public class NotificationControllerImpl implements NotificationController {
         return RestResponse.result(notification);
     }
 
+    @Override
+    public BaseResponse readAllNotifications(UUID userKey) {
+        this.notificationService.readAll(userKey);
+
+        return RestResponse.success();
+    }
+
 }

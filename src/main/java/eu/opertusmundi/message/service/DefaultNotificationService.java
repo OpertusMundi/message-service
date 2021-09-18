@@ -49,4 +49,10 @@ public class DefaultNotificationService implements NotificationService {
     public NotificationDto read(UUID key) {
         return this.notificationRepository.read(key);
     }
+
+    @Override
+    public void readAll(UUID userKey) {
+        this.notificationRepository.readAll(userKey, ZonedDateTime.now());
+    }
+
 }

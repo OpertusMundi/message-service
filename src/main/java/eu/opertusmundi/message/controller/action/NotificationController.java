@@ -176,4 +176,30 @@ public interface NotificationController {
         @PathVariable(name = "key", required = true) UUID key
     );
 
+    /**
+     * Mark all notifications as read
+     *
+     * @return An instance of {@link BaseResponse}
+     */
+    @Operation(
+        summary     = "Read all notifications",
+        description = "Marks all notifications as read",
+        tags        = { "Notification" }
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = BaseResponse.class))
+    )
+    @PutMapping(value = "/user/{key}")
+    @Secured({"ROLE_USER"})
+    BaseResponse readAllNotifications(
+    @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Recipient unique key"
+        )
+        @PathVariable(name = "key", required = true) UUID key
+    );
+
 }

@@ -10,6 +10,7 @@ import javax.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -30,6 +31,11 @@ public interface JpaNotificationRepository extends JpaRepository<NotificationEnt
 
     @Query("SELECT n FROM Notification n WHERE n.recipient = :recipient and n.read = false")
     List<NotificationEntity> findUserUnreadNotifications(@Param("recipient") UUID recipient, Pageable pageable);
+
+    @Modifying
+    @Transactional(readOnly = false)
+    @Query("UPDATE Notification n SET n.read = true, n.readAt = :when WHERE n.recipient = :userKey and n.read = false")
+    int readAll(UUID userKey, ZonedDateTime when);
 
     @Query("SELECT n FROM Notification n WHERE " +
            "   (n.recipient = :userKey) AND " +

@@ -48,4 +48,11 @@ public interface NotificationService {
      */
     NotificationDto read(UUID key);
 
+    /**
+     * Mark all notifications as read
+     *
+     * @param userKey
+     */
+    void readAll(UUID userKey);
+
 }
