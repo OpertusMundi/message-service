@@ -11,17 +11,18 @@ import lombok.Setter;
 
 @Schema(description = "Message command object")
 @NoArgsConstructor
+@Getter
+@Setter
 public class MessageCommandDto extends BaseMessageCommandDto {
+
+    @Schema(description = "Optional application specific idempotent key")
+    private String idempotentKey;
 
     @Schema(description = "Sender unique id", required = true)
     @NotNull
-    @Getter
-    @Setter
     private UUID sender;
 
     @Schema(description = "Reply to the specified message thread", required = false)
-    @Getter
-    @Setter
     private UUID thread;
 
 }

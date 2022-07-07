@@ -29,58 +29,51 @@ import lombok.Setter;
     typeClass      = JsonBinaryType.class,
     defaultForType = JsonNode.class
 )
+@Getter
+@Setter
 public class NotificationEntity {
 
     @Id
     @SequenceGenerator(schema = "messaging", sequenceName = "notification_id_seq", name = "notification_id_seq", allocationSize = 1)
     @GeneratedValue(generator = "notification_id_seq", strategy = GenerationType.SEQUENCE)
     @Column(name = "`id`")
-    @Getter
+    @Setter(AccessLevel.PRIVATE)
     private Integer id;
 
     @NotNull
     @Column(name = "key", updatable = false, columnDefinition = "uuid")
-    @Getter
-    private final UUID key = UUID.randomUUID();
+    @Setter(AccessLevel.PRIVATE)
+    private UUID key = UUID.randomUUID();
+
+    @Column(name = "idempotent_key", updatable = false)
+    private String idempotentKey;
 
     @NotNull
     @Column(name = "recipient", updatable = false, columnDefinition = "uuid")
-    @Getter
     @Setter(AccessLevel.PRIVATE)
     private UUID recipient;
 
     @NotEmpty
     @Column(name = "`text`")
-    @Getter
-    @Setter
     private String text;
 
     @NotNull
     @Column(name = "`send_at`")
-    @Getter
-    final ZonedDateTime sendAt = ZonedDateTime.now();
+    @Setter(AccessLevel.PRIVATE)
+    private ZonedDateTime sendAt = ZonedDateTime.now();
 
     @Column(name = "`read`")
-    @Getter
-    @Setter
-    boolean read = false;
-
+    private boolean read = false;
 
     @Column(name = "`read_at`")
-    @Getter
-    @Setter
-    ZonedDateTime readAt;
+    private ZonedDateTime readAt;
 
     @Column(name = "`event_type`")
-    @Getter
-    @Setter
     private String eventType;
-    
+
     @Column(name = "`data`", columnDefinition = "jsonb")
-    @Getter
-    @Setter
     private JsonNode data;
-    
+
     protected NotificationEntity() {
 
     }
@@ -96,6 +89,7 @@ public class NotificationEntity {
         n.setData(this.data);
         n.setEventType(this.eventType);
         n.setId(this.key);
+        n.setIdempotentKey(this.idempotentKey);
         n.setRead(this.read);
         n.setReadAt(this.readAt);
         n.setRecipient(this.recipient);

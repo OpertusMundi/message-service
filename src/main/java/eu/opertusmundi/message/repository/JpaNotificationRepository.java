@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import javax.persistence.EntityNotFoundException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,6 +26,8 @@ import eu.opertusmundi.message.model.NotificationDto;
 public interface JpaNotificationRepository extends JpaRepository<NotificationEntity, Integer> {
 
     Optional<NotificationEntity> findOneByKey(UUID key);
+
+    Optional<NotificationEntity> findOneByRecipientAndIdempotentKey(UUID recipient, String idempotentKey);
 
     @Query("SELECT n FROM Notification n WHERE n.recipient = :recipient")
     List<NotificationEntity> findUserNotifications(@Param("recipient") UUID recipient, Pageable pageable);
@@ -52,10 +55,18 @@ public interface JpaNotificationRepository extends JpaRepository<NotificationEnt
 
     @Transactional(readOnly = false)
     default NotificationDto send(NotificationCommandDto command) {
+        if (!StringUtils.isEmpty(command.getIdempotentKey())) {
+            final NotificationEntity existing = this.findOneByRecipientAndIdempotentKey(command.getRecipient(), command.getIdempotentKey()).orElse(null);
+            if (existing != null) {
+                return existing.toDto();
+            }
+        }
+
         final NotificationEntity notification = new NotificationEntity(command.getRecipient());
 
         notification.setData(command.getData());
         notification.setEventType(command.getEventType());
+        notification.setIdempotentKey(command.getIdempotentKey());
         notification.setText(command.getText());
 
         this.saveAndFlush(notification);

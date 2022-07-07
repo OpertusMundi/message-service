@@ -9,16 +9,17 @@ import lombok.Setter;
 
 @Schema(description = "Notification command object")
 @NoArgsConstructor
+@Getter
+@Setter
 public class NotificationCommandDto extends BaseMessageCommandDto {
 
+    @Schema(description = "Optional application specific idempotent key")
+    private String idempotentKey;
+
     @Schema(description = "Optional application specific event type")
-    @Getter
-    @Setter
     private String eventType;
-    
+
     @Schema(description = "Optional application specific data")
-    @Getter
-    @Setter
     private JsonNode data;
-    
+
 }
