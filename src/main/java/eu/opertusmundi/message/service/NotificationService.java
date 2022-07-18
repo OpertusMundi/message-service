@@ -42,17 +42,18 @@ public interface NotificationService {
     /**
      * Mark a notification as read
      *
+     * @param recipientKey Recipient key
      * @param key Notification key
      *
      * @return The updated notification
      */
-    NotificationDto read(UUID key);
+    NotificationDto read(UUID recipientKey, UUID key);
 
     /**
      * Mark all notifications as read
      *
      * @param userKey
      */
-    void readAll(UUID userKey);
+    void readAll(UUID recipientKey);
 
 }

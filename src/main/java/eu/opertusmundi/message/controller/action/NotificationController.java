@@ -165,9 +165,15 @@ public interface NotificationController {
         description = "successful operation",
         content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = BaseResponse.class))
     )
-    @PutMapping(value = "/{key}")
+    @PutMapping(value = "/user/{recipientKey}/notification/{key}")
     @Secured({"ROLE_USER"})
     BaseResponse readNotification(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Recipient unique key"
+        )
+        @PathVariable(name = "recipientKey", required = true) UUID recipientKey,
         @Parameter(
             in          = ParameterIn.PATH,
             required    = true,
@@ -191,15 +197,15 @@ public interface NotificationController {
         description = "successful operation",
         content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = BaseResponse.class))
     )
-    @PutMapping(value = "/user/{key}")
+    @PutMapping(value = "/user/{recipientKey}")
     @Secured({"ROLE_USER"})
     BaseResponse readAllNotifications(
-    @Parameter(
+        @Parameter(
             in          = ParameterIn.PATH,
             required    = true,
             description = "Recipient unique key"
         )
-        @PathVariable(name = "key", required = true) UUID key
+        @PathVariable(name = "recipientKey", required = true) UUID recipientKey
     );
 
 }

@@ -48,15 +48,15 @@ public class NotificationControllerImpl implements NotificationController {
     }
 
     @Override
-    public BaseResponse readNotification(UUID key) {
-        final NotificationDto notification = this.notificationService.read(key);
+    public BaseResponse readNotification(UUID recipientKey, UUID key) {
+        final NotificationDto notification = this.notificationService.read(recipientKey, key);
 
         return RestResponse.result(notification);
     }
 
     @Override
-    public BaseResponse readAllNotifications(UUID userKey) {
-        this.notificationService.readAll(userKey);
+    public BaseResponse readAllNotifications(UUID recipientKey) {
+        this.notificationService.readAll(recipientKey);
 
         return RestResponse.success();
     }

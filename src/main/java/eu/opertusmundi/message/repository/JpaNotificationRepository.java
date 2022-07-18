@@ -27,6 +27,8 @@ public interface JpaNotificationRepository extends JpaRepository<NotificationEnt
 
     Optional<NotificationEntity> findOneByKey(UUID key);
 
+    Optional<NotificationEntity> findOneByRecipientAndKey(UUID recipient, UUID key);
+
     Optional<NotificationEntity> findOneByRecipientAndIdempotentKey(UUID recipient, String idempotentKey);
 
     @Query("SELECT n FROM Notification n WHERE n.recipient = :recipient")
@@ -75,8 +77,8 @@ public interface JpaNotificationRepository extends JpaRepository<NotificationEnt
     }
 
     @Transactional(readOnly = false)
-    default NotificationDto read(UUID key) throws EntityNotFoundException {
-        final NotificationEntity notification = this.findOneByKey(key).orElse(null);
+    default NotificationDto read(UUID recipientKey, UUID key) throws EntityNotFoundException {
+        final NotificationEntity notification = this.findOneByRecipientAndKey(recipientKey, key).orElse(null);
 
         if (notification == null) {
             throw new EntityNotFoundException();

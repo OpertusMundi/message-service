@@ -46,13 +46,13 @@ public class DefaultNotificationService implements NotificationService {
     }
 
     @Override
-    public NotificationDto read(UUID key) {
-        return this.notificationRepository.read(key);
+    public NotificationDto read(UUID recipientKey, UUID key) {
+        return this.notificationRepository.read(recipientKey, key);
     }
 
     @Override
-    public void readAll(UUID userKey) {
-        this.notificationRepository.readAll(userKey, ZonedDateTime.now());
+    public void readAll(UUID recipientKey) {
+        this.notificationRepository.readAll(recipientKey, ZonedDateTime.now());
     }
 
 }
