@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Schema(description = "Message object")
+@Getter
+@Setter
 public class MessageDto extends BaseMessageDto {
 
     public MessageDto() {
@@ -14,28 +16,21 @@ public class MessageDto extends BaseMessageDto {
     }
 
     @Schema(description = "Message unique id")
-    @Getter
-    @Setter
     private UUID id;
 
     @Schema(description = "Message thread unique id")
-    @Getter
-    @Setter
     private UUID thread;
 
     @Schema(description = "Message sender")
-    @Getter
-    @Setter
     private UUID sender;
 
     @Schema(description = "Message recipient")
-    @Getter
-    @Setter
     private UUID recipient;
 
     @Schema(description = "Reply message key")
-    @Getter
-    @Setter
     private UUID reply;
+
+    @Schema(description = "Message subject")
+    private String subject;
 
 }

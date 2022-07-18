@@ -9,18 +9,16 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 
+@Getter
+@Setter
 public class BaseMessageCommandDto {
 
     @Schema(description = "Recipient unique id", required = true)
     @NotNull(groups = {MessageValidationUserGroup.class})
-    @Getter
-    @Setter
     private UUID recipient;
 
     @Schema(description = "Message text", required = true)
     @NotEmpty
-    @Getter
-    @Setter
     private String text;
 
 }

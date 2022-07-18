@@ -25,4 +25,7 @@ public class MessageCommandDto extends BaseMessageCommandDto {
     @Schema(description = "Reply to the specified message thread", required = false)
     private UUID thread;
 
+    @Schema(description = "Message subject")
+    private String subject;
+
 }

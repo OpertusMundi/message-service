@@ -60,17 +60,14 @@ public interface JpaMessageRepository extends JpaRepository<MessageEntity, Integ
 
     @Query("SELECT m FROM Message m WHERE " +
            "   (m.owner = :userKey) AND " +
-           "   (m.recipient = :userKey) AND " +
            "   (CAST(:dateFrom AS date) IS NULL OR m.sendAt >= :dateFrom) AND " +
            "   (CAST(:dateTo AS date) IS NULL OR m.sendAt <= :dateTo) AND " +
-           "   (:read IS NULL OR m.read = :read)")
-     Page<MessageEntity> findUserMessages(
-         @Param("userKey") UUID userKey,
-         @Param("dateFrom") ZonedDateTime dateFrom,
-         @Param("dateTo") ZonedDateTime dateTo,
-         @Param("read") Boolean read,
-         Pageable pageable
-     );
+           "   (:read IS NULL OR m.read = :read) AND " +
+           "   (cast(:contact as org.hibernate.type.UUIDCharType) IS NULL OR m.sender = :contact OR m.recipient = :contact) AND " +
+           "   (:thread = false OR m.thread = m.key) ")
+    Page<MessageEntity> findUserMessages(
+        UUID userKey, ZonedDateTime dateFrom, ZonedDateTime dateTo, Boolean read, boolean thread, UUID contact, Pageable pageable
+    );
 
     @Transactional(readOnly = false)
     default MessageDto send(MessageCommandDto command) {
@@ -99,6 +96,7 @@ public interface JpaMessageRepository extends JpaRepository<MessageEntity, Integ
 
         senderMessage.setRecipient(command.getRecipient());
         senderMessage.setSender(command.getSender());
+        senderMessage.setSubject(lastMessage == null ? command.getSubject() : lastMessage.getSubject());
         senderMessage.setText(command.getText());
         // Always marked as read for sender
         senderMessage.setRead(true);
@@ -112,6 +110,7 @@ public interface JpaMessageRepository extends JpaRepository<MessageEntity, Integ
 
             recipientMessage.setRecipient(command.getRecipient());
             recipientMessage.setSender(command.getSender());
+            recipientMessage.setSubject(lastMessage == null ? command.getSubject() : lastMessage.getSubject());
             recipientMessage.setText(command.getText());
 
             this.saveAndFlush(recipientMessage);
@@ -170,6 +169,7 @@ public interface JpaMessageRepository extends JpaRepository<MessageEntity, Integ
 
                 recipientMessage.setRecipient(recipientKey);
                 recipientMessage.setSender(m.getSender());
+                recipientMessage.setSubject(m.getSubject());
                 recipientMessage.setText(m.getText());
 
                 this.saveAndFlush(recipientMessage);

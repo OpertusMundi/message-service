@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import eu.opertusmundi.message.model.BaseResponse;
+import eu.opertusmundi.message.model.EnumMessageStatus;
 import eu.opertusmundi.message.model.MessageCommandDto;
 import eu.opertusmundi.message.model.RestResponse;
 import eu.opertusmundi.message.model.openapi.schema.MessageEndpointTypes;
@@ -179,9 +180,15 @@ public interface MessageController {
         @Parameter(
             in          = ParameterIn.QUERY,
             required    = false,
-            description = "Filter read messages"
+            description = "Filter messages by status"
         )
-        @RequestParam(name = "read", required = false) Boolean read
+        @RequestParam(name = "status", required = false) EnumMessageStatus status,
+        @Parameter(
+            in          = ParameterIn.QUERY,
+            required    = false,
+            description = "Contract key"
+        )
+        @RequestParam(name = "contactKey", required = false) UUID contactKey
     );
 
     /**

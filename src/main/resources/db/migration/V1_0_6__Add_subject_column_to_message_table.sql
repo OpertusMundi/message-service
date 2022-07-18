@@ -1,0 +1,1 @@
+ALTER TABLE messaging.message ADD IF NOT EXISTS "subject" character varying NULL;

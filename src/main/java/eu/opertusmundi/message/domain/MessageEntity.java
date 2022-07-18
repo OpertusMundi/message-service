@@ -20,70 +20,60 @@ import lombok.Setter;
 
 @Entity(name = "Message")
 @Table(name = "`message`", schema = "messaging")
+@Getter
+@Setter
 public class MessageEntity {
 
     @Id
     @SequenceGenerator(schema = "messaging", sequenceName = "message_id_seq", name = "message_id_seq", allocationSize = 1)
     @GeneratedValue(generator = "message_id_seq", strategy = GenerationType.SEQUENCE)
     @Column(name = "`id`")
-    @Getter
+    @Setter(AccessLevel.PRIVATE)
     private Integer id;
 
     @NotNull
     @Column(name = "key", updatable = false, columnDefinition = "uuid")
-    @Getter
     @Setter(AccessLevel.PRIVATE)
     private UUID key;
 
     @NotNull
     @Column(name = "thread", updatable = false, columnDefinition = "uuid")
-    @Getter
     @Setter(AccessLevel.PRIVATE)
     private UUID thread;
 
     @NotNull
     @Column(name = "owner", updatable = false, columnDefinition = "uuid")
-    @Getter
     @Setter(AccessLevel.PRIVATE)
     private UUID owner;
 
     @NotNull
     @Column(name = "sender", updatable = false, columnDefinition = "uuid")
-    @Getter
-    @Setter
     private UUID sender;
 
     @Column(name = "recipient", columnDefinition = "uuid")
-    @Getter
-    @Setter
     private UUID recipient;
+
+    @Column(name = "`subject`")
+    private String subject;
 
     @NotEmpty
     @Column(name = "`text`")
-    @Getter
-    @Setter
     private String text;
 
     @NotNull
     @Column(name = "`send_at`")
-    @Getter
-    final ZonedDateTime sendAt = ZonedDateTime.now();
+    @Setter(AccessLevel.PRIVATE)
+    private ZonedDateTime sendAt = ZonedDateTime.now();
 
     @Column(name = "`read`")
-    @Getter
-    @Setter
-    boolean read = false;
+    private boolean read = false;
 
 
     @Column(name = "`read_at`")
-    @Getter
-    @Setter
-    ZonedDateTime readAt;
+    private ZonedDateTime readAt;
 
     @Column(name = "`reply`", columnDefinition = "uuid")
-    @Getter
-    @Setter
-    UUID reply;
+    private UUID reply;
 
     protected MessageEntity() {
 
@@ -105,6 +95,7 @@ public class MessageEntity {
         n.setReadAt(this.readAt);
         n.setRecipient(this.recipient);
         n.setReply(this.reply);
+        n.setSubject(subject);
         n.setText(this.text);
         n.setThread(this.thread);
 

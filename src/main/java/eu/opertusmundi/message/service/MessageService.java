@@ -4,6 +4,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import eu.opertusmundi.message.model.EnumMessageStatus;
 import eu.opertusmundi.message.model.MessageCommandDto;
 import eu.opertusmundi.message.model.MessageDto;
 import eu.opertusmundi.message.model.PageResultDto;
@@ -41,12 +42,13 @@ public interface MessageService {
      * @param userKey
      * @param dateFrom
      * @param dateTo
-     * @param read
+     * @param status
+     * @param contactKey
      *
      * @return An instance of {@link PageResultDto} with items of type {@link MessageDto}
      */
     PageResultDto<MessageDto> findUserMessages(
-        Integer pageIndex, Integer pageSize, UUID userKey, ZonedDateTime dateFrom, ZonedDateTime dateTo, Boolean read
+        Integer pageIndex, Integer pageSize, UUID userKey, ZonedDateTime dateFrom, ZonedDateTime dateTo, EnumMessageStatus read, UUID contactKey
     );
 
     /**

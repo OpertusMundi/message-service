@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.opertusmundi.message.model.BaseResponse;
+import eu.opertusmundi.message.model.EnumMessageStatus;
 import eu.opertusmundi.message.model.MessageCommandDto;
 import eu.opertusmundi.message.model.MessageDto;
 import eu.opertusmundi.message.model.PageResultDto;
@@ -45,7 +46,7 @@ public class MessageControllerImpl implements MessageController {
 
     @Override
     public RestResponse<?> getUserInbox(
-        UUID userKey, Integer pageIndex, Integer pageSize, ZonedDateTime dateFrom, ZonedDateTime dateTo, Boolean read
+        UUID userKey, Integer pageIndex, Integer pageSize, ZonedDateTime dateFrom, ZonedDateTime dateTo, EnumMessageStatus status, UUID contactKey
     ) {
         if (pageIndex == null) {
             pageIndex = 0;
@@ -54,7 +55,7 @@ public class MessageControllerImpl implements MessageController {
             pageSize = 10;
         }
 
-        final PageResultDto<MessageDto> result = this.messageService.findUserMessages(pageIndex, pageSize, userKey, dateFrom, dateTo, read);
+        final PageResultDto<MessageDto> result = this.messageService.findUserMessages(pageIndex, pageSize, userKey, dateFrom, dateTo, status, contactKey);
 
         return RestResponse.result(result);
     }

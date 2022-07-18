@@ -13,6 +13,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 import eu.opertusmundi.message.domain.MessageEntity;
+import eu.opertusmundi.message.model.EnumMessageStatus;
 import eu.opertusmundi.message.model.MessageCommandDto;
 import eu.opertusmundi.message.model.MessageDto;
 import eu.opertusmundi.message.model.PageResultDto;
@@ -44,11 +45,12 @@ public class DefaultMessageService implements MessageService {
 
     @Override
     public PageResultDto<MessageDto> findUserMessages(
-        Integer pageIndex, Integer pageSize, UUID userKey, ZonedDateTime dateFrom, ZonedDateTime dateTo, Boolean read
+        Integer pageIndex, Integer pageSize, UUID userKey, ZonedDateTime dateFrom, ZonedDateTime dateTo, EnumMessageStatus status, UUID contactKey
     ) {
-        final PageRequest pageRequest = PageRequest.of(pageIndex, pageSize, Sort.by(Direction.DESC, "sendAt"));
-
-        final Page<MessageEntity> page = this.messageRepository.findUserMessages(userKey, dateFrom, dateTo, read, pageRequest);
+        final PageRequest         pageRequest = PageRequest.of(pageIndex, pageSize, Sort.by(Direction.DESC, "sendAt"));
+        final Boolean             read        = status == EnumMessageStatus.UNREAD || status == EnumMessageStatus.THREAD_ONLY_UNREAD ? false : null;
+        final boolean             thread      = status == EnumMessageStatus.THREAD_ONLY || status == EnumMessageStatus.THREAD_ONLY_UNREAD;
+        final Page<MessageEntity> page        = this.messageRepository.findUserMessages(userKey, dateFrom, dateTo, read, thread, contactKey, pageRequest);
 
         final PageResultDto<MessageDto> result = PageResultDto.from(page, MessageEntity::toDto);
 
