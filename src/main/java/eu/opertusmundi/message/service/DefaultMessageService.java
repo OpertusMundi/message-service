@@ -45,12 +45,12 @@ public class DefaultMessageService implements MessageService {
 
     @Override
     public PageResultDto<MessageDto> findUserMessages(
-        Integer pageIndex, Integer pageSize, UUID userKey, ZonedDateTime dateFrom, ZonedDateTime dateTo, EnumMessageStatus status, UUID contactKey
+        Integer pageIndex, Integer pageSize, UUID ownerKey, ZonedDateTime dateFrom, ZonedDateTime dateTo, EnumMessageStatus status, UUID contactKey
     ) {
         final PageRequest         pageRequest = PageRequest.of(pageIndex, pageSize, Sort.by(Direction.DESC, "sendAt"));
         final Boolean             read        = status == EnumMessageStatus.UNREAD || status == EnumMessageStatus.THREAD_ONLY_UNREAD ? false : null;
         final boolean             thread      = status == EnumMessageStatus.THREAD_ONLY || status == EnumMessageStatus.THREAD_ONLY_UNREAD;
-        final Page<MessageEntity> page        = this.messageRepository.findUserMessages(userKey, dateFrom, dateTo, read, thread, contactKey, pageRequest);
+        final Page<MessageEntity> page        = this.messageRepository.findUserMessages(ownerKey, dateFrom, dateTo, read, thread, contactKey, pageRequest);
 
         final PageResultDto<MessageDto> result = PageResultDto.from(page, MessageEntity::toDto);
 
@@ -58,8 +58,8 @@ public class DefaultMessageService implements MessageService {
     }
 
     @Override
-    public Long countUserNewMessages(UUID userKey) {
-        return this.messageRepository.countUserNewMessages(userKey);
+    public Long countUserNewMessages(UUID ownerKey) {
+        return this.messageRepository.countUserNewMessages(ownerKey);
     }
 
     @Override
@@ -68,8 +68,13 @@ public class DefaultMessageService implements MessageService {
     }
 
     @Override
-    public MessageDto read(UUID owner, UUID key) {
-        return this.messageRepository.read(owner, key);
+    public MessageDto readMessage(UUID ownerKey, UUID messageKey) {
+        return this.messageRepository.readMessage(ownerKey, messageKey);
+    }
+
+    @Override
+    public List<MessageDto> readThread(UUID ownerKey, UUID threadKey) {
+        return this.messageRepository.readThread(ownerKey, threadKey);
     }
 
     @Override
@@ -78,7 +83,7 @@ public class DefaultMessageService implements MessageService {
     }
 
     @Override
-    public List<MessageDto> getMessageThread(UUID threadKey, UUID ownerKey) {
+    public List<MessageDto> getMessageThread(UUID ownerKey, UUID threadKey) {
         return this.messageRepository.findAllByOwnerAndThread(ownerKey, threadKey).stream()
             .map(MessageEntity::toDto)
             .collect(Collectors.toList());

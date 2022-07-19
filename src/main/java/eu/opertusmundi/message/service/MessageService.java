@@ -16,7 +16,7 @@ public interface MessageService {
      *
      * @param pageIndex
      * @param pageSize
-     * @param userKey
+     * @param ownerKey
      * @param dateFrom
      * @param dateTo
      * @param read
@@ -39,7 +39,7 @@ public interface MessageService {
      *
      * @param pageIndex
      * @param pageSize
-     * @param userKey
+     * @param ownerKey
      * @param dateFrom
      * @param dateTo
      * @param status
@@ -48,17 +48,17 @@ public interface MessageService {
      * @return An instance of {@link PageResultDto} with items of type {@link MessageDto}
      */
     PageResultDto<MessageDto> findUserMessages(
-        Integer pageIndex, Integer pageSize, UUID userKey, ZonedDateTime dateFrom, ZonedDateTime dateTo, EnumMessageStatus read, UUID contactKey
+        Integer pageIndex, Integer pageSize, UUID ownerKey, ZonedDateTime dateFrom, ZonedDateTime dateTo, EnumMessageStatus read, UUID contactKey
     );
 
     /**
      * Count user new messages
      *
-     * @param userKey
+     * @param ownerKey
      *
      * @return The number of new (unread) messages
      */
-    Long countUserNewMessages(UUID userKey);
+    Long countUserNewMessages(UUID ownerKey);
 
     /**
      * Send a new message
@@ -71,12 +71,22 @@ public interface MessageService {
     /**
      * Mark a message as read
      *
-     * @param owner Owner key
-     * @param key Message key
+     * @param ownerKey Owner key
+     * @param messageKey Message key
      *
      * @return The updated message
      */
-    MessageDto read(UUID owner, UUID key);
+    MessageDto readMessage(UUID ownerKey, UUID messageKey);
+
+    /**
+     * Mark all messages of a thread as read
+     *
+     * @param ownerKey Owner key
+     * @param messageKey Thread key
+     *
+     * @return The updated thread
+     */
+    List<MessageDto> readThread(UUID ownerKey, UUID threadKey);
 
     /**
      * Assign message to Helpdesk user
@@ -91,11 +101,11 @@ public interface MessageService {
     /**
      * Get message thread
      *
-     * @param messageKey The key of the message thread
      * @param ownerKey The key of the owner of the specified message thread
+     * @param threadKey The key of the message thread
      *
      * @return
      */
-    List<MessageDto> getMessageThread(UUID threadKey, UUID ownerKey);
+    List<MessageDto> getMessageThread(UUID ownerKey, UUID threadKey);
 
 }

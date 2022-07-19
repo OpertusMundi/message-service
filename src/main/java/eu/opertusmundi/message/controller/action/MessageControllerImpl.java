@@ -46,7 +46,7 @@ public class MessageControllerImpl implements MessageController {
 
     @Override
     public RestResponse<?> getUserInbox(
-        UUID userKey, Integer pageIndex, Integer pageSize, ZonedDateTime dateFrom, ZonedDateTime dateTo, EnumMessageStatus status, UUID contactKey
+        UUID ownerKey, Integer pageIndex, Integer pageSize, ZonedDateTime dateFrom, ZonedDateTime dateTo, EnumMessageStatus status, UUID contactKey
     ) {
         if (pageIndex == null) {
             pageIndex = 0;
@@ -55,14 +55,14 @@ public class MessageControllerImpl implements MessageController {
             pageSize = 10;
         }
 
-        final PageResultDto<MessageDto> result = this.messageService.findUserMessages(pageIndex, pageSize, userKey, dateFrom, dateTo, status, contactKey);
+        final PageResultDto<MessageDto> result = this.messageService.findUserMessages(pageIndex, pageSize, ownerKey, dateFrom, dateTo, status, contactKey);
 
         return RestResponse.result(result);
     }
 
     @Override
-    public RestResponse<?> countUserNewMessages(UUID userKey) {
-        final Long result = messageService.countUserNewMessages(userKey);
+    public RestResponse<?> countUserNewMessages(UUID ownerKey) {
+        final Long result = messageService.countUserNewMessages(ownerKey);
 
         return RestResponse.result(result);
     }
@@ -75,10 +75,17 @@ public class MessageControllerImpl implements MessageController {
     }
 
     @Override
-    public BaseResponse readMessage(UUID owner, UUID key) {
-        final MessageDto message = this.messageService.read(owner, key);
+    public BaseResponse readMessage(UUID ownerKey, UUID messageKey) {
+        final MessageDto message = this.messageService.readMessage(ownerKey, messageKey);
 
         return RestResponse.result(message);
+    }
+
+    @Override
+    public BaseResponse readThread(UUID ownerKey, UUID threadKey) {
+        final List<MessageDto> messages = this.messageService.readThread(ownerKey, threadKey);
+
+        return RestResponse.result(messages);
     }
 
     @Override
@@ -89,8 +96,8 @@ public class MessageControllerImpl implements MessageController {
     }
 
     @Override
-    public BaseResponse getMessageThread(UUID threadKey, UUID ownerKey) {
-        final List<MessageDto> messages = this.messageService.getMessageThread(threadKey, ownerKey);
+    public BaseResponse getMessageThread(UUID ownerKey, UUID threadKey) {
+        final List<MessageDto> messages = this.messageService.getMessageThread(ownerKey, threadKey);
 
         return RestResponse.result(messages);
     }

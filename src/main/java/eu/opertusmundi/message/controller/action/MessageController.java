@@ -122,12 +122,13 @@ public interface MessageController {
     /**
      * Find messages
      *
+     * @param ownerKey
      * @param pageIndex
      * @param pageSize
-     * @param userKey
      * @param dateFrom
      * @param dateTo
-     * @param read
+     * @param status
+     * @param contactKey
      *
      * @return An instance of {@link MessageEndpointTypes.MessageListResponseDto}
      */
@@ -143,14 +144,14 @@ public interface MessageController {
             schema = @Schema(implementation = MessageEndpointTypes.MessageListResponseDto.class)
         )
     )
-    @GetMapping(value = "/user/{userKey}")
+    @GetMapping(value = "/user/{ownerKey}")
     @Secured({"ROLE_USER"})
     RestResponse<?> getUserInbox(
         @Parameter(
             in          = ParameterIn.PATH,
-            description = "Filter user by key"
+            description = "The key of the message owner"
         )
-        @PathVariable(name = "userKey") UUID userKey,
+        @PathVariable(name = "ownerKey") UUID ownerKey,
         @Parameter(
             in          = ParameterIn.QUERY,
             required    = false,
@@ -186,7 +187,7 @@ public interface MessageController {
         @Parameter(
             in          = ParameterIn.QUERY,
             required    = false,
-            description = "Contract key"
+            description = "Filter messages by contract key"
         )
         @RequestParam(name = "contactKey", required = false) UUID contactKey
     );
@@ -194,6 +195,7 @@ public interface MessageController {
     /**
      * Count user new messages
      *
+     * @param ownerKey
      * @return An instance of {@link MessageEndpointTypes.CountResponseDto}
      */
     @Operation(
@@ -208,14 +210,14 @@ public interface MessageController {
             schema = @Schema(implementation = MessageEndpointTypes.CountResponseDto.class)
         )
     )
-    @GetMapping(value = "/user/{userKey}/count")
+    @GetMapping(value = "/user/{ownerKey}/count")
     @Secured({"ROLE_USER"})
     RestResponse<?> countUserNewMessages(
         @Parameter(
             in          = ParameterIn.PATH,
             description = "Filter user by key"
         )
-        @PathVariable(name = "userKey") UUID userKey
+        @PathVariable(name = "ownerKey") UUID ownerKey
     );
 
     /**
@@ -248,8 +250,8 @@ public interface MessageController {
     /**
      * Mark message as read
      *
-     * @param key The message to mark as read
-     *
+     * @param ownerKey The owner of the message
+     * @param messageKey The message key
      * @return An instance of {@link BaseResponse}
      */
     @Operation(
@@ -262,7 +264,7 @@ public interface MessageController {
         description = "successful operation",
         content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = BaseResponse.class))
     )
-    @PutMapping(value = "/user/{owner}/message/{key}")
+    @PutMapping(value = "/user/{ownerKey}/message/{messageKey}")
     @Secured({"ROLE_USER"})
     BaseResponse readMessage(
         @Parameter(
@@ -270,13 +272,47 @@ public interface MessageController {
             required    = true,
             description = "Message owner's unique key"
         )
-        @PathVariable(name = "owner", required = true) UUID owner,
+        @PathVariable(name = "ownerKey", required = true) UUID ownerKey,
         @Parameter(
             in          = ParameterIn.PATH,
             required    = true,
             description = "Message unique key"
         )
-        @PathVariable(name = "key", required = true) UUID key
+        @PathVariable(name = "messageKey", required = true) UUID messageKey
+    );
+
+    /**
+     * Mark all messages of a thread as read
+     *
+     * @param ownerKey The owner of the thread
+     * @param threadKey The thread key
+     * @return An instance of {@link BaseResponse}
+     */
+    @Operation(
+        summary     = "Read thread",
+        description = "Marks all messages of a thread as read",
+        tags        = { "Message" }
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = BaseResponse.class))
+    )
+    @PutMapping(value = "/user/{ownerKey}/thread/{threadKey}")
+    @Secured({"ROLE_USER"})
+    BaseResponse readThread(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Thread owner's unique key"
+        )
+        @PathVariable(name = "ownerKey", required = true) UUID ownerKey,
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "The thread unique key"
+        )
+        @PathVariable(name = "threadKey", required = true) UUID threadKey
     );
 
     /**
@@ -316,7 +352,7 @@ public interface MessageController {
     /**
      * Get a message thread
      *
-     * @param userKey The owner of the message
+     * @param ownerKey The owner of the message
      * @param messageKey The key of any message from the thread
      *
      * @return An instance of {@link BaseResponse}
@@ -331,21 +367,21 @@ public interface MessageController {
         description = "successful operation",
         content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = MessageThreadResponseDto.class))
     )
-    @GetMapping(value = "/thread/{threadKey}/sender/{ownerKey}")
+    @GetMapping(value = "/user/{ownerKey}/thread/{threadKey}")
     @Secured({"ROLE_USER"})
     BaseResponse getMessageThread(
         @Parameter(
             in          = ParameterIn.PATH,
             required    = true,
-            description = "Message thread unique key"
+            description = "Thread owner unique key"
         )
-        @PathVariable(name = "threadKey") UUID threadKey,
+        @PathVariable(name = "ownerKey") UUID ownerKey,
         @Parameter(
             in          = ParameterIn.PATH,
             required    = true,
-            description = "Message owner's unique key"
+            description = "Message thread unique key"
         )
-        @PathVariable(name = "ownerKey") UUID ownerKey
+        @PathVariable(name = "threadKey") UUID threadKey
     );
 
 }

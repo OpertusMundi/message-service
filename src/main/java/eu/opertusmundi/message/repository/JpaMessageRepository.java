@@ -4,6 +4,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
@@ -37,14 +38,11 @@ public interface JpaMessageRepository extends JpaRepository<MessageEntity, Integ
     @Query("SELECT m FROM Message m WHERE m.owner = :owner and m.thread = :thread order by m.sendAt asc")
     List<MessageEntity> findAllByOwnerAndThread(UUID owner, UUID thread);
 
-    @Query("SELECT m FROM Message m WHERE m.owner = :userKey")
-    List<MessageEntity> findUserMessages(@Param("userKey") UUID userKey, Pageable pageable);
+    @Query("SELECT m FROM Message m WHERE m.owner = :ownerKey")
+    List<MessageEntity> findUserMessages(UUID ownerKey, Pageable pageable);
 
-    @Query("SELECT m FROM Message m WHERE m.owner = :userKey and m.read = false")
-    List<MessageEntity> findUserUnreadMessages(@Param("userKey") UUID userKey, Pageable pageable);
-
-    @Query("SELECT m FROM Message m WHERE m.owner = :owner and m.thread = :thread")
-    List<MessageEntity> findThreadMessages(@Param("owner") UUID owner, @Param("thread") UUID thread);
+    @Query("SELECT m FROM Message m WHERE m.owner = :ownerKey and m.read = false")
+    List<MessageEntity> findUserUnreadMessages(UUID ownerKey, Pageable pageable);
 
     @Query("SELECT m FROM Message m WHERE " +
            "   (m.recipient is null) AND " +
@@ -59,14 +57,14 @@ public interface JpaMessageRepository extends JpaRepository<MessageEntity, Integ
     );
 
     @Query("SELECT m FROM Message m WHERE " +
-           "   (m.owner = :userKey) AND " +
+           "   (m.owner = :ownerKey) AND " +
            "   (CAST(:dateFrom AS date) IS NULL OR m.sendAt >= :dateFrom) AND " +
            "   (CAST(:dateTo AS date) IS NULL OR m.sendAt <= :dateTo) AND " +
            "   (:read IS NULL OR m.read = :read) AND " +
            "   (cast(:contact as org.hibernate.type.UUIDCharType) IS NULL OR m.sender = :contact OR m.recipient = :contact) AND " +
            "   (:thread = false OR m.thread = m.key) ")
     Page<MessageEntity> findUserMessages(
-        UUID userKey, ZonedDateTime dateFrom, ZonedDateTime dateTo, Boolean read, boolean thread, UUID contact, Pageable pageable
+        UUID ownerKey, ZonedDateTime dateFrom, ZonedDateTime dateTo, Boolean read, boolean thread, UUID contact, Pageable pageable
     );
 
     @Transactional(readOnly = false)
@@ -126,8 +124,8 @@ public interface JpaMessageRepository extends JpaRepository<MessageEntity, Integ
     }
 
     @Transactional(readOnly = false)
-    default MessageDto read(UUID owner, UUID key) throws EntityNotFoundException {
-        final MessageEntity message = this.findOneByOwnerAndKey(owner, key).orElse(null);
+    default MessageDto readMessage(UUID ownerKey, UUID messageKey) throws EntityNotFoundException {
+        final MessageEntity message = this.findOneByOwnerAndKey(ownerKey, messageKey).orElse(null);
 
         if (message == null) {
             throw new EntityNotFoundException();
@@ -144,6 +142,33 @@ public interface JpaMessageRepository extends JpaRepository<MessageEntity, Integ
     }
 
     @Transactional(readOnly = false)
+    default List<MessageDto> readThread(UUID ownerKey, UUID threadKey) throws EntityNotFoundException {
+        final List<MessageEntity> entities = this.findAllByOwnerAndThread(ownerKey, threadKey);
+        final ZonedDateTime       now      = ZonedDateTime.now();
+
+        if (entities.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+
+        for (final MessageEntity e : entities) {
+            if (!e.isRead()) {
+                e.setRead(true);
+                e.setReadAt(now);
+
+                this.saveAndFlush(e);
+            }
+        }
+
+        final List<MessageDto> messages = entities.stream()
+            .map(MessageEntity::toDto)
+            .collect(Collectors.toList());
+
+        return messages;
+    }
+
+
+
+    @Transactional(readOnly = false)
     default MessageDto assignMessage(UUID messageKey, UUID recipientKey) throws EntityNotFoundException {
         // Find message by key
         final List<MessageEntity> unassignedMessages = this.findAllUnassignedByKey(messageKey);
@@ -156,7 +181,7 @@ public interface JpaMessageRepository extends JpaRepository<MessageEntity, Integ
 
         // Update all messages in the thread (user may have send multiple
         // messages)
-        final List<MessageEntity> threadMessages = this.findThreadMessages(lastMessage.getOwner(), lastMessage.getThread());
+        final List<MessageEntity> threadMessages = this.findAllByOwnerAndThread(lastMessage.getOwner(), lastMessage.getThread());
 
         for (final MessageEntity m : threadMessages) {
             if (m.getRecipient() == null) {
