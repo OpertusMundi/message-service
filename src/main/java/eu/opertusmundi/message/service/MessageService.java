@@ -1,12 +1,12 @@
 package eu.opertusmundi.message.service;
 
 import java.time.ZonedDateTime;
-import java.util.List;
 import java.util.UUID;
 
-import eu.opertusmundi.message.model.EnumMessageStatus;
+import eu.opertusmundi.message.model.EnumMessageView;
 import eu.opertusmundi.message.model.MessageCommandDto;
 import eu.opertusmundi.message.model.MessageDto;
+import eu.opertusmundi.message.model.MessageThreadDto;
 import eu.opertusmundi.message.model.PageResultDto;
 
 public interface MessageService {
@@ -48,7 +48,7 @@ public interface MessageService {
      * @return An instance of {@link PageResultDto} with items of type {@link MessageDto}
      */
     PageResultDto<MessageDto> findUserMessages(
-        Integer pageIndex, Integer pageSize, UUID ownerKey, ZonedDateTime dateFrom, ZonedDateTime dateTo, EnumMessageStatus read, UUID contactKey
+        Integer pageIndex, Integer pageSize, UUID ownerKey, ZonedDateTime dateFrom, ZonedDateTime dateTo, EnumMessageView view, UUID contactKey
     );
 
     /**
@@ -86,7 +86,7 @@ public interface MessageService {
      *
      * @return The updated thread
      */
-    List<MessageDto> readThread(UUID ownerKey, UUID threadKey);
+    MessageThreadDto readThread(UUID ownerKey, UUID threadKey);
 
     /**
      * Assign message to Helpdesk user
@@ -106,6 +106,6 @@ public interface MessageService {
      *
      * @return
      */
-    List<MessageDto> getMessageThread(UUID ownerKey, UUID threadKey);
+    MessageThreadDto getMessageThread(UUID ownerKey, UUID threadKey);
 
 }

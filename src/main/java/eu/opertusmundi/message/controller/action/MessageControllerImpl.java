@@ -1,16 +1,16 @@
 package eu.opertusmundi.message.controller.action;
 
 import java.time.ZonedDateTime;
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
 import eu.opertusmundi.message.model.BaseResponse;
-import eu.opertusmundi.message.model.EnumMessageStatus;
+import eu.opertusmundi.message.model.EnumMessageView;
 import eu.opertusmundi.message.model.MessageCommandDto;
 import eu.opertusmundi.message.model.MessageDto;
+import eu.opertusmundi.message.model.MessageThreadDto;
 import eu.opertusmundi.message.model.PageResultDto;
 import eu.opertusmundi.message.model.RestResponse;
 import eu.opertusmundi.message.service.MessageService;
@@ -46,7 +46,7 @@ public class MessageControllerImpl implements MessageController {
 
     @Override
     public RestResponse<?> getUserInbox(
-        UUID ownerKey, Integer pageIndex, Integer pageSize, ZonedDateTime dateFrom, ZonedDateTime dateTo, EnumMessageStatus status, UUID contactKey
+        UUID ownerKey, Integer pageIndex, Integer pageSize, ZonedDateTime dateFrom, ZonedDateTime dateTo, EnumMessageView view, UUID contactKey
     ) {
         if (pageIndex == null) {
             pageIndex = 0;
@@ -55,7 +55,7 @@ public class MessageControllerImpl implements MessageController {
             pageSize = 10;
         }
 
-        final PageResultDto<MessageDto> result = this.messageService.findUserMessages(pageIndex, pageSize, ownerKey, dateFrom, dateTo, status, contactKey);
+        final PageResultDto<MessageDto> result = this.messageService.findUserMessages(pageIndex, pageSize, ownerKey, dateFrom, dateTo, view, contactKey);
 
         return RestResponse.result(result);
     }
@@ -83,9 +83,9 @@ public class MessageControllerImpl implements MessageController {
 
     @Override
     public BaseResponse readThread(UUID ownerKey, UUID threadKey) {
-        final List<MessageDto> messages = this.messageService.readThread(ownerKey, threadKey);
+        final MessageThreadDto thread = this.messageService.readThread(ownerKey, threadKey);
 
-        return RestResponse.result(messages);
+        return RestResponse.result(thread);
     }
 
     @Override
@@ -97,9 +97,9 @@ public class MessageControllerImpl implements MessageController {
 
     @Override
     public BaseResponse getMessageThread(UUID ownerKey, UUID threadKey) {
-        final List<MessageDto> messages = this.messageService.getMessageThread(ownerKey, threadKey);
+        final MessageThreadDto thread = this.messageService.getMessageThread(ownerKey, threadKey);
 
-        return RestResponse.result(messages);
+        return RestResponse.result(thread);
     }
 
 }

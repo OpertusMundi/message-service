@@ -5,9 +5,12 @@ import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
@@ -37,9 +40,11 @@ public class MessageEntity {
     private UUID key;
 
     @NotNull
-    @Column(name = "thread", updatable = false, columnDefinition = "uuid")
-    @Setter(AccessLevel.PRIVATE)
-    private UUID thread;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "thread", nullable = false)
+    @Getter
+    @Setter
+    private MessageThreadEntity thread;
 
     @NotNull
     @Column(name = "owner", updatable = false, columnDefinition = "uuid")
@@ -62,7 +67,6 @@ public class MessageEntity {
 
     @NotNull
     @Column(name = "`send_at`")
-    @Setter(AccessLevel.PRIVATE)
     private ZonedDateTime sendAt = ZonedDateTime.now();
 
     @Column(name = "`read`")
@@ -79,13 +83,16 @@ public class MessageEntity {
 
     }
 
-    public MessageEntity(UUID owner, UUID key, UUID thread) {
+    public MessageEntity(UUID owner, UUID key) {
         this.owner  = owner;
         this.key    = key;
-        this.thread = thread;
     }
 
     public MessageDto toDto() {
+        return this.toDto(false);
+    }
+
+    public MessageDto toDto(boolean includeThreadCounts) {
         final MessageDto n = new MessageDto();
 
         n.setCreatedAt(this.sendAt);
@@ -97,7 +104,12 @@ public class MessageEntity {
         n.setReply(this.reply);
         n.setSubject(subject);
         n.setText(this.text);
-        n.setThread(this.thread);
+        n.setThread(this.thread.getKey());
+
+        if (includeThreadCounts) {
+            n.setThreadCount(this.thread.getCount());
+            n.setThreadCountUnread(this.thread.getUnread());
+        }
 
         return n;
     }
