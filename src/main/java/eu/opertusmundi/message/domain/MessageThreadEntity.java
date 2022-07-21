@@ -16,6 +16,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 
 import eu.opertusmundi.message.model.MessageThreadDto;
@@ -35,6 +36,12 @@ public class MessageThreadEntity {
     @Column(name = "`id`")
     @Setter(AccessLevel.PRIVATE)
     private Integer id;
+
+    @Version
+    @Column(name = "row_version")
+    @Getter(AccessLevel.PRIVATE)
+    @Setter(AccessLevel.PRIVATE)
+    private long rowVersion;
 
     @NotNull
     @Column(name = "key", updatable = false, columnDefinition = "uuid")

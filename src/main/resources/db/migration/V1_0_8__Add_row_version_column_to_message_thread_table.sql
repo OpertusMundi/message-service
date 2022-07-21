@@ -1,0 +1,1 @@
+ALTER TABLE messaging.message_thread ADD IF NOT EXISTS "row_version" bigint NOT NULL DEFAULT(1);
