@@ -61,4 +61,10 @@ public class NotificationControllerImpl implements NotificationController {
         return RestResponse.success();
     }
 
+    @Override
+    public BaseResponse deleteAllByRecipientKey(UUID recipientKey) {
+        this.notificationService.deleteAllByRecipientKey(recipientKey);
+
+        return RestResponse.success();
+    }
 }

@@ -55,4 +55,8 @@ public class DefaultNotificationService implements NotificationService {
         this.notificationRepository.readAll(recipientKey, ZonedDateTime.now());
     }
 
+    @Override
+    public void deleteAllByRecipientKey(UUID recipientKey) {
+        this.notificationRepository.deleteAllByRecipientKey(recipientKey);
+    }
 }

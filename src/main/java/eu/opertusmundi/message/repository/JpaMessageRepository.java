@@ -10,6 +10,7 @@ import javax.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -80,6 +81,14 @@ public interface JpaMessageRepository extends JpaRepository<MessageThreadEntity,
     Page<MessageEntity> findUserThreads(
         UUID ownerKey, ZonedDateTime dateFrom, ZonedDateTime dateTo, Boolean read, UUID contact, Pageable pageable
     );
+
+    @Modifying
+    @Transactional(readOnly = false)
+    @Query("DELETE  FROM MessageThread t "
+         + "WHERE   t.id in ("
+         + "    SELECT DISTINCT m.thread FROM Message m where m.sender = :contactKey or m.recipient = :contactKey"
+         + ")")
+    void deleteAllByContactKey(UUID contactKey);
 
     @Transactional(readOnly = false)
     default MessageDto send(MessageCommandDto command) {

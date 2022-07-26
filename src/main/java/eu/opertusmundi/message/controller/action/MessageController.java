@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -382,6 +383,34 @@ public interface MessageController {
             description = "Message thread unique key"
         )
         @PathVariable(name = "threadKey") UUID threadKey
+    );
+
+    /**
+     * Delete all contact messages
+     *
+     * @param contactKey The contact unique key
+     *
+     * @return An instance of {@link BaseResponse}
+     */
+    @Operation(
+        summary     = "Delete messages",
+        description = "Delete all messages that refer to the specified contact key either as a sender or as a recipient",
+        tags        = { "Message" }
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
+    )
+    @DeleteMapping(value = "/user/{contactKey}")
+    @Secured({"ROLE_USER"})
+    BaseResponse deleteAllByContactKey(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Contact unique key"
+        )
+        @PathVariable(name = "contactKey") UUID contactKey
     );
 
 }

@@ -56,4 +56,10 @@ public interface NotificationService {
      */
     void readAll(UUID recipientKey);
 
+    /**
+     * Delete all notifications for the specified recipient
+     *
+     * @param recipientKey The recipient unique key
+     */
+    void deleteAllByRecipientKey(UUID recipientKey);
 }

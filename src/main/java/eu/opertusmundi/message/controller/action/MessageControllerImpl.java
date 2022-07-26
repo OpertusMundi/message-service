@@ -102,4 +102,11 @@ public class MessageControllerImpl implements MessageController {
         return RestResponse.result(thread);
     }
 
+    @Override
+    public BaseResponse deleteAllByContactKey(UUID contactKey) {
+        this.messageService.deleteAllByContactKey(contactKey);
+
+        return RestResponse.success();
+    }
+
 }

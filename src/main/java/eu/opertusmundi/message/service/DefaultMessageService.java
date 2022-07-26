@@ -91,4 +91,9 @@ public class DefaultMessageService implements MessageService {
             .map(t -> t.toDto(true))
             .orElse(null);
     }
+
+    @Override
+    public void deleteAllByContactKey(UUID contactKey) {
+        this.messageRepository.deleteAllByContactKey(contactKey);
+    }
 }

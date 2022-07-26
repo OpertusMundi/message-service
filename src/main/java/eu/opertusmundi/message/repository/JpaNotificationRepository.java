@@ -55,6 +55,11 @@ public interface JpaNotificationRepository extends JpaRepository<NotificationEnt
          Pageable pageable
      );
 
+    @Modifying
+    @Transactional(readOnly = false)
+    @Query("DELETE FROM Notification n WHERE n.recipient = :recipientKey")
+    void deleteAllByRecipientKey(UUID recipientKey);
+
     @Transactional(readOnly = false)
     default NotificationDto send(NotificationCommandDto command) {
         if (!StringUtils.isEmpty(command.getIdempotentKey())) {

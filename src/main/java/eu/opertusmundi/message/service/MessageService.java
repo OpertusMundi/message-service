@@ -108,4 +108,12 @@ public interface MessageService {
      */
     MessageThreadDto getMessageThread(UUID ownerKey, UUID threadKey);
 
+    /**
+     * Delete all messages that refer to the specified contact key either as a
+     * sender or as a recipient
+     *
+     * @param contactKey The contact unique key
+     */
+    void deleteAllByContactKey(UUID contactKey);
+
 }

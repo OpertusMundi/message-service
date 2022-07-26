@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -206,6 +207,35 @@ public interface NotificationController {
             description = "Recipient unique key"
         )
         @PathVariable(name = "recipientKey", required = true) UUID recipientKey
+    );
+
+
+    /**
+     * Delete all notifications for the specified recipient
+     *
+     * @param recipientKey The recipient unique key
+     *
+     * @return An instance of {@link BaseResponse}
+     */
+    @Operation(
+        summary     = "Delete notifications",
+        description = "Delete all notifications for the specified recipient",
+        tags        = { "Message" }
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "successful operation",
+        content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)
+    )
+    @DeleteMapping(value = "/user/{recipientKey}")
+    @Secured({"ROLE_USER"})
+    BaseResponse deleteAllByRecipientKey(
+        @Parameter(
+            in          = ParameterIn.PATH,
+            required    = true,
+            description = "Recipient unique key"
+        )
+        @PathVariable(name = "recipientKey") UUID recipientKey
     );
 
 }
