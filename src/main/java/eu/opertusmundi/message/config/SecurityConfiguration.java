@@ -1,17 +1,17 @@
 package eu.opertusmundi.message.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import eu.opertusmundi.message.security.JwtAuthorizationFilter;
@@ -19,7 +19,7 @@ import eu.opertusmundi.message.security.JwtAuthorizationFilter;
 @Configuration
 @EnableGlobalMethodSecurity(securedEnabled = true)
 @EnableWebSecurity
-public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+public class SecurityConfiguration {
 
     @Value("${springdoc.api-docs.path}")
     private String openApiSpec;
@@ -27,26 +27,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Value("${opertus-mundi.security.jwt.secret}")
     private String jwtSecret;
 
-    /**
-     * Returns the authentication manager currently used by Spring. It represents a
-     * bean definition with the aim allow wiring from other classes performing the
-     * Inversion of Control (IoC).
-     *
-     * @throws Exception
-     */
     @Bean
-    @Override
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
+    public AuthenticationManager authenticationManager() {
+        return (Authentication authentication) -> {
+            throw new BadCredentialsException("Bad credentials");
+        };
     }
 
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth.inMemoryAuthentication();
-    }
-
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         // Configure request authentication
         http.authorizeRequests()
             // Public
@@ -77,6 +66,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         // Support JWT authentication
         http.addFilterAfter(new JwtAuthorizationFilter(this.authenticationManager(), this.jwtSecret), BasicAuthenticationFilter.class);
-    }
 
+        return http.build();
+    }
 }
