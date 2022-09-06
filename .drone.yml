@@ -40,8 +40,8 @@ steps:
   - echo "CREATE SCHEMA \"messaging\"" | psql -U $${DATABASE_USER} -d $${DATABASE_NAME}
 
 - name: resolve-deps
-  #image: maven:3.6.3-openjdk-8
-  image: opertusmundi/spring-boot-builder:1-2.3.4
+  #image: maven:3.8.6-eclipse-temurin-17-alpine
+  image: opertusmundi/spring-boot-builder:1-2.7.3
   when:
     event:
     - push
@@ -75,8 +75,8 @@ steps:
     ) | tee $${config_file}
 
 - name: tests
-  #image: maven:3.6.3-openjdk-8
-  image: opertusmundi/spring-boot-builder:1-2.3.4
+  #image: maven:3.8.6-eclipse-temurin-17-alpine
+  image: opertusmundi/spring-boot-builder:1-2.7.3
   when:
     event:
     - push
@@ -88,8 +88,8 @@ steps:
   - mvn test -B -DenableCiProfile
 
 - name: integration-tests
-  #image: maven:3.6.3-openjdk-8
-  image: opertusmundi/spring-boot-builder:1-2.3.4
+  #image: maven:3.8.6-eclipse-temurin-17-alpine
+  image: opertusmundi/spring-boot-builder:1-2.7.3
   when:
     event:
     - push
