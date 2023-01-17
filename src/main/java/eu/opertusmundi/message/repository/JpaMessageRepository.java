@@ -122,6 +122,7 @@ public interface JpaMessageRepository extends JpaRepository<MessageThreadEntity,
         // Create message for sender
         final MessageEntity senderMessage = new MessageEntity(command.getSender(), key);
 
+        senderMessage.setAttributes(command.getAttributes());
         senderMessage.setRecipient(command.getRecipient());
         senderMessage.setSender(command.getSender());
         senderMessage.setSubject(lastMessage == null ? command.getSubject() : lastMessage.getSubject());
@@ -150,6 +151,7 @@ public interface JpaMessageRepository extends JpaRepository<MessageThreadEntity,
 
             final MessageEntity recipientMessage = new MessageEntity(command.getRecipient(), key);
 
+            recipientMessage.setAttributes(command.getAttributes());
             recipientMessage.setRecipient(command.getRecipient());
             recipientMessage.setSender(command.getSender());
             recipientMessage.setSubject(lastMessage == null ? command.getSubject() : lastMessage.getSubject());
@@ -244,6 +246,7 @@ public interface JpaMessageRepository extends JpaRepository<MessageThreadEntity,
 
                 final MessageEntity recipientMessage = new MessageEntity(recipientKey, m.getKey());
 
+                recipientMessage.setAttributes(m.getAttributes());
                 recipientMessage.setRecipient(recipientKey);
                 recipientMessage.setSendAt(m.getSendAt());
                 recipientMessage.setSender(m.getSender());

@@ -16,6 +16,11 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.TypeDef;
+
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+
 import eu.opertusmundi.message.model.MessageDto;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -23,6 +28,10 @@ import lombok.Setter;
 
 @Entity(name = "Message")
 @Table(name = "`message`", schema = "messaging")
+@TypeDef(
+    typeClass      = JsonBinaryType.class,
+    defaultForType = ObjectNode.class
+)
 @Getter
 @Setter
 public class MessageEntity {
@@ -79,6 +88,9 @@ public class MessageEntity {
     @Column(name = "`reply`", columnDefinition = "uuid")
     private UUID reply;
 
+    @Column(name = "attributes", columnDefinition = "jsonb")
+    private ObjectNode attributes;
+
     protected MessageEntity() {
 
     }
@@ -95,6 +107,7 @@ public class MessageEntity {
     public MessageDto toDto(boolean includeThreadCounts) {
         final MessageDto n = new MessageDto();
 
+        n.setAttributes(attributes);
         n.setCreatedAt(this.sendAt);
         n.setId(this.key);
         n.setSender(this.sender);

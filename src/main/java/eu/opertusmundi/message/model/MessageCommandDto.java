@@ -4,6 +4,8 @@ import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,5 +29,7 @@ public class MessageCommandDto extends BaseMessageCommandDto {
 
     @Schema(description = "Message subject")
     private String subject;
+
+    private ObjectNode attributes;
 
 }
